@@ -23,7 +23,7 @@ let lineHeightScale = 1.28;
 let minWordLength = 4;
 
 // visualisation [ rural, urban, shared, free, initial ]
-let bandColors = [ '#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F9F9F9' ];
+let bandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F9F9F9'];
 // let bandColors = [ '#9CC0E5', '#F59797', '#C5C6C7', '#959DAD', '#F9F9F9' ];
 // let bandColors = [ '#9CC0E5', '#F59797', '#EDDEA4', '#526760', '#F9F9F9' ];
 // let bandColors = [ '#84ACCE', '#D16666', '#D7D9DB', '#B5AEAE', '#F9F9F9' ];
@@ -150,7 +150,7 @@ function affinities() {
   });
   // normalize (4 values should sum to 1)
   return Object.fromEntries(Object.entries(data).map
-    (([k, v]) => [k, v / repIds.length])); 
+    (([k, v]) => [k, v / repIds.length]));
 }
 
 function ramble() {
@@ -282,7 +282,7 @@ function postReplace(e) {
 /* selects an index to restore (from history) in displayed text */
 function restore() {
 
-  let { domain } = state;
+  let { domain, stepMode } = state;
 
   let displayWords = unspanify();
 
