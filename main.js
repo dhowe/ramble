@@ -120,7 +120,7 @@ let offset = {
 };
 let opts = { offset, font, lineHeightScale, padding };
 let lines = layoutCircular(sources[state.domain], initMetrics.radius, opts);
-initMetrics.lineWidths = lineateCircular(domDisplay, initMetrics.radius, lines); // this is not the width of the text, but the width of the bounding box
+initMetrics.lineWidths = lineateCircular(domDisplay, initMetrics.radius, lines).lineWidths; // this is not the width of the text, but the width of the bounding box
 initMetrics.fontSize = lines[0].fontSize;
 if (1) { // DEBUG-ONLY
   // walks.short = 2;
@@ -132,6 +132,7 @@ if (1) { // DEBUG-ONLY
   //keyhandler({ code: 'KeyI' });
   //setTimeout(() => keyhandler({ code: 'KeyD' }, 300));
 }
+initWordSpace();
 createLegend();
 scaleToFit();
 initMetrics.contentWidths = getAllLineWidths(); // this contains the widths of the text for each line

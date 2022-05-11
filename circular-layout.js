@@ -57,9 +57,33 @@ const lineateCircular = function (target, initialRadius, lines, opts = {}) {
   };
 }
 
-const adjustWordSpace = function (lineEle, initialMetrics, maxMin, padding, radius) {
+const initWordSpace = function () {
+  const minMax = wordspaceMinMax;
+  // happens in scale=1
+  for (let i = 0; i < initMetrics.lineWidths.length; i++) {
+    let tw = initMetrics.lineWidths[i];
+    let lineEle = document.getElementById("l" + i);
+    let step = 0.01;
+    let wordSpacing = window.getComputedStyle(lineEle).wordSpacing;
+    let ws = parseFloat(wordSpacing.replace('px', '')) / initMetrics.fontSize; // px => em
+    let cw = lineEle.firstChild.getBoundingClientRect().width;
+    for (let tries = 0; Math.abs(tw - cw) > 0.005 * initMetrics.radius && tries < 200; tries++) {
+      ws += (tw > cw) ? step : -step;
+      lineEle.style.wordSpacing = ws + "em";
+      cw = lineEle.firstChild.getBoundingClientRect().width;
+    }
+    if (ws >= minMax[1]) {
+      lineEle.style.wordSpacing = minMax[1] + "em";
+    }
+    else if (ws <= minMax[0]) {
+      lineEle.style.wordSpacing = minMax[0] + "em";
+    }
+  }
+}
+
+const adjustWordSpace = function (lineEle, initialMetrics, minMax, padding, radius) {
   // caculation in scale=1, not current scale
-  if (!Array.isArray(maxMin)) throw Error('[maxMin] required');
+  if (!Array.isArray(minMax)) throw Error('[minMax] required');
 
   lineEle.classList.remove("max-word-spacing");
   lineEle.classList.remove("min-word-spacing");
@@ -67,24 +91,24 @@ const adjustWordSpace = function (lineEle, initialMetrics, maxMin, padding, radi
   let wordSpacing = window.getComputedStyle(lineEle).wordSpacing;
   let step = 0.01, scaleRatio = radius / initialMetrics.radius;
   let idx = parseInt((lineEle.id).slice(1));
-  let origW = initialMetrics.lineWidths[idx] - 2 * padding;
+  let origW = initialMetrics.lineWidths[idx];
   let currentW = lineEle.firstChild.getBoundingClientRect().width / scaleRatio;
   let ws = parseFloat(wordSpacing.replace('px', '')) / initialMetrics.fontSize; // px => em
 
   // try to get within 5 pixels of current width ?
-  for (let tries = 0; Math.abs(origW - currentW) > 0.00555555 * initMetrics.radius && tries < 200; tries++) {
+  for (let tries = 0; Math.abs(origW - currentW) > 0.005 * initMetrics.radius && tries < 200; tries++) {
     ws += (origW > currentW) ? step : -step;
     lineEle.style.wordSpacing = ws + "em";
     currentW = lineEle.firstChild.getBoundingClientRect().width / scaleRatio;
   }
 
   // check for extreme values
-  if (ws >= maxMin[1]) {
-    lineEle.style.wordSpacing = maxMin[1] + "em";
+  if (ws >= minMax[1]) {
+    lineEle.style.wordSpacing = minMax[1] + "em";
     //line.classList.add("max-word-spacing"); // debugging only
   }
-  else if (ws <= maxMin[0]) {
-    lineEle.style.wordSpacing = maxMin[0] + "em";
+  else if (ws <= minMax[0]) {
+    lineEle.style.wordSpacing = minMax[0] + "em";
     //line.classList.add("min-word-spacing");  // debugging only
   }
 
