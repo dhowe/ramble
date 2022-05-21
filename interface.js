@@ -46,6 +46,10 @@ function keyhandler(e) {
     stop();
   }
   else if (e.code === 'KeyS') {
+    shadowMode = !shadowMode;
+    console.log('[KEYB] shadowMode: ' + shadowMode + ' ** NOT-YET-IMPLEMENTED');
+  }
+  else if (e.code === 'KeyT') {
     if (!state.stepMode) {
       state.stepMode = true;
       if (reader) reader.stop();

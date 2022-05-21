@@ -1,8 +1,8 @@
 /*
   Measure a string with canvas context using the current font and fontsize
-  @param: text: str to be measured 
-          font: css str to set the font for measurement
-          wordSpacing: (optional) css string or number in em
+  @param text: str to be measured 
+  @param font: css str to set the font for measurement
+  @param wordSpacing: (optional) css string or number in em
 */
 const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
 
@@ -72,11 +72,14 @@ const getInitialContentWidths = function (n, useCtx) {
       max: array[percentage, width] distance to target width with max word spacing
       opt: array[percentage, width, wsPx(num in px), wsEm] distance to target width after ws adjustment
   }
-  @param: newWord: str, the word  to change to
-          wordId: int, the id of the word to be changed
-          isShadow: boolean, true if doing for shadow text
-          field: arr, return field, ['max', 'min', 'opt'] 
-          // only get the neccessary ones for the best performance
+
+  @param newWord: str, the word  to change to
+  @param wordId: int, the id of the word to be changed
+  @param isShadow: boolean, true if using shadow text
+  @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
+
+  @optimization if we measure new width with 'minWordSpace', we should be able to compute width 
+  with 'maxWordSpace', based on the numSpaces, without another measure call (possible future)
 */
 const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 
@@ -141,7 +144,7 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
       max: array[percentage, width] distance to target width with max word spacing
       opt: array[percentage, width, wsPx(num in px), wsEm(num in em)] distance to target width after ws adjustment
   }
-  @param: newWord: str, the word  to change to
+  @params newWord: str, the word  to change to
           wordId: int, the id of the word to be changed
           field: arr, return field, ['max', 'min', 'opt'] 
           // only get the neccessary ones for the best performance 

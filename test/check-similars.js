@@ -27,7 +27,6 @@ let overrides = {
 };
 
 let state = { sources, ignores, stops, minWordLength }, similarCache = {};
-console.log(state);
 
 function findSimilars(idx, word, pos, state) {
 
@@ -60,25 +59,6 @@ function findSimilars(idx, word, pos, state) {
   return [];
 }
 
-function findSimilarsX(word, pos) {
-
-  let limit = -1;
-
-  let rhymes = RiTa.rhymes(word, { pos, limit });
-  let sounds = RiTa.soundsLike(word, { pos, limit });
-  let spells = RiTa.spellsLike(word, { pos, limit });
-  let sims = new Set([...rhymes, ...sounds, ...spells]);
-
-  sims = [...sims].filter(sim =>
-    sim.length >= minWordLength
-    && !word.includes(sim)
-    && !sim.includes(word)
-    && !stops.includes(sim)
-    && !ignores.includes(sim));
-
-  return sims;
-}
-
 function quotify(arr) {
   return JSON.stringify(arr).replace(/["]/g, "'");//arr.map((a,i) => {" '" + a + "',").join('');
 }
@@ -100,15 +80,16 @@ let missing = ["animal/jj", "sunset/nn", "most/rbs", "circadian/nn", "simply/rb"
 //   lookupWord(word, pos);
 // });
 
-//console.log(sources.rural.filter((w,i) => w=='might' && console.log(w,sources.pos[i])));
-//lookupWord('might', 'md');
+//console.log(RiTa.untokenize(sources.rural));
+//console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
+lookupWord('spreads', 'vbz', true);
 
-let word = 'may';
-console.log(isReplaceable(word, state));
+//let word = 'may';
+//console.log(isReplaceable(word, state));
 //console.log(((word.length >= minWordLength) || overrides[word]));// && !stops.includes(word))
 //|| overrides[word]) && !stops.includes(word)));
 
-function lookupWord(word, pos) {
+function lookupWord(word, pos, forcePos) {
   let idx, counter;//, word = 'animal';
   let uidx = sources.urban.indexOf(word);
   let ridx = sources.rural.indexOf(word);
@@ -125,7 +106,8 @@ function lookupWord(word, pos) {
     console.log('remove ' + word + '/' + pos);
     return;
   }
-  if (pos && pos !== sources.pos[idx]) {
+  console.log('forcePos=',forcePos);
+  if (!forcePos && (pos && pos !== sources.pos[idx])) {
     throw Error(word + " '" + pos + '\'!=\'' + sources.pos[idx] + "'");
   }
 
