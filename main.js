@@ -44,10 +44,10 @@ let similarOverrides = {
   set: ['caressed', 'digressed', 'forget', 'progressed', 'redressed', 'regressed', 'seat'],
   sunset: ['dawning', 'daybreak', 'daylight', 'morning', 'sunrise', 'sunup', 'daytime', 'forenoon', 'crepuscule', 'dusk', 'evening', 'gloaming', 'night', 'nightfall', 'sundown', 'twilight', 'subset', 'inset', 'alphabet', 'mindset', 'quintet'],
 
-  might: [ 'could', 'would', 'should', 'must' ],
-  should: [ 'could', 'would', 'might', 'must' ],
-  would: [ 'could', 'should', 'might', 'must' ],
-  could: [ 'would', 'should', 'might', 'must' ]
+  might: ['could', 'would', 'should', 'must'],
+  should: ['could', 'would', 'might', 'must'],
+  would: ['could', 'should', 'might', 'must'],
+  could: ['would', 'should', 'might', 'must']
 };
 
 // words considered un-replaceable
@@ -305,11 +305,8 @@ function updateState() {
 function replace() {
   let { domain } = state;
   let shadow = shadowTextName();
-  let idx = RiTa.random(repids.filter(id => !reader
-    || !reader.selection().includes(sources[domain][id])));
-  
+  let idx = RiTa.random(repids.filter(id => !reader || !beingRead(id)));
   //idx = 261; //updateDelay = 10000000; // DBUG: remove
-
   let dword = last(history[domain][idx]);
   let sword = last(history[shadow][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
@@ -326,7 +323,7 @@ function postReplace(e) {
 
   let shadow = shadowTextName();
   let delayMs, pos = sources.pos[idx];
-  if (dsims.length && ssims.length) {
+  if (dsims.length && ssims.length && !beingRead(idx)) {
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
@@ -352,6 +349,7 @@ function postReplace(e) {
   }
   else {
     let msg = `[FAIL] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
+    if (beingRead(idx)) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `No similars found for '${dword}' `;
     if (!ssims.length) msg += `No similars found for '${sword}' (shadow)`;
     console.warn(msg);
@@ -554,6 +552,11 @@ function trunc(arr, len = 100) {
 function shadowTextName(domain) {
   domain = domain || state.domain;
   return domain === 'rural' ? 'urban' : 'rural';
+}
+
+function beingRead(idx) {
+  return reader.selection()
+    .includes(sources[state.domain][idx]);
 }
 
 function lineIdFromWordId(idx) {
