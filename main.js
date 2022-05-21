@@ -397,7 +397,7 @@ function postReplace(e) {
     if (beingRead(idx)) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `No similars found for '${dword}' `;
     if (!ssims.length) msg += `No similars found for '${sword}' (shadow)`;
-    console.warn(msg);
+    console.log(msg);
   }
 
   if (!stepMode) state.loopId = setTimeout(ramble, delayMs);
@@ -439,7 +439,7 @@ function restore() {
   else {
     let id = repids.find(idx => history[domain][idx].length > 1);
     let word = sources[domain][id], hist = history[domain][id];
-    console.warn('[WARN] Invalid-state, numMods:'
+    console.error('[WARN] Invalid-state, numMods:'
       + numMods() + ' idx=' + id + '/' + word + ' history=', hist);
     //displayWords.forEach((w, i) => console.log(i, w, JSON.stringify(history[domain][i])));
     //return stop();
