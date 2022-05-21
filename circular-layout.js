@@ -63,6 +63,7 @@ const createCircularDOM = function (target, initialRadius, lines) {
     lineDiv.style.wordSpacing = l.wordSpacing + "em";
     lineDiv.style.top = (l.bounds[1] - l.bounds[3] / 2) + "px";
     lineDiv.id = "l" + li;
+    wordLineMap.line2Word[li] = []; 
 
     if (l.text && l.text.length > 0) {
       let wrapperSpan = document.createElement("span");
@@ -75,6 +76,8 @@ const createCircularDOM = function (target, initialRadius, lines) {
         if (iil > 0 && !RiTa.isPunct(w)) wrapperSpan.append(" ");
         let wordSpan = document.createElement("span");
         wordSpan.classList.add("word");
+        wordLineMap.line2Word[li].push(wordIdx);
+        wordLineMap.word2Line[wordIdx] = li;
         wordSpan.id = "w" + wordIdx++;
         wordSpan.innerText = w;
         wrapperSpan.append(wordSpan);
@@ -111,7 +114,7 @@ const adjustWordSpace = function (lineEle, targetWidth, opts) {
     (c => lineEle.firstChild && lineEle.firstChild.classList.remove(c));
 
   let lineIdx = parseInt((lineEle.id).slice(1));
-  let currentWidth = getLineWidth(lineIdx);
+  let currentWidth = getLineWidth(lineEle);
   let wordSpacingEm = getWordSpaceEm(lineEle); // px => em
 
   wordSpacingEm = parseFloat(wordSpacingEm.toFixed(2)); // why?
@@ -124,13 +127,13 @@ const adjustWordSpace = function (lineEle, targetWidth, opts) {
 
   while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
     bound1 = clamp(bound1 + (step * direction), minWordSpace, maxWordSpace);
-    currentWidth = getLineWidth(lineIdx, bound1);
+    currentWidth = getLineWidth(lineEle, bound1);
     if (bound1 <= minWordSpace || bound1 >= maxWordSpace) break;
   }
 
   w1 = currentWidth;
   bound2 = bound1 - (step * direction);
-  currentWidth = getLineWidth(lineIdx, bound2);
+  currentWidth = getLineWidth(lineEle, bound2);
 
   let finalWs = Math.abs(w1 - targetWidth) >
     Math.abs(currentWidth - targetWidth) ? bound2 : bound1;

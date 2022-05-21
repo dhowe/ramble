@@ -1,8 +1,8 @@
-@font-face {
+/* @font-face {
   font-family: 'Source Serif Pro';
   src: url('./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff') format('woff'),
        url('./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff2') format('woff2'),
-}
+} */
 
 body {
   background: #fdfdfd;
@@ -227,6 +227,7 @@ body {
   transform-origin: top left;
   -webkit-transform-origin: top left;
   -moz-transform-origin: top left;
+  user-select: none;
 }
 
 #legend-container {
