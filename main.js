@@ -8,7 +8,7 @@ let stepsPerLeg = 50;
 let updateDelay = 800
 
 // time on new text before updates (ms) 
-let readDelay = stepsPerLeg * updateDelay * 2;
+let readDelay = stepsPerLeg * updateDelay;
 
 // min/max/start CSS word-spacing (em)
 let minWordSpace = -0.1, maxWordSpace = 0.5, initialWordSpace = 0.1;
@@ -43,6 +43,11 @@ let similarOverrides = {
   dip: ['blip', 'chip', 'clip', 'drip', 'grip', 'microchip', 'quip', 'roundtrip', 'ship', 'slip', 'snip', 'strip', 'trip', 'whip'],
   set: ['caressed', 'digressed', 'forget', 'progressed', 'redressed', 'regressed', 'seat'],
   sunset: ['dawning', 'daybreak', 'daylight', 'morning', 'sunrise', 'sunup', 'daytime', 'forenoon', 'crepuscule', 'dusk', 'evening', 'gloaming', 'night', 'nightfall', 'sundown', 'twilight', 'subset', 'inset', 'alphabet', 'mindset', 'quintet'],
+
+  might: [ 'could', 'would', 'should', 'must' ],
+  should: [ 'could', 'would', 'might', 'must' ],
+  would: [ 'could', 'should', 'might', 'must' ],
+  could: [ 'would', 'should', 'might', 'must' ]
 };
 
 // words considered un-replaceable
@@ -100,7 +105,8 @@ let radius = displayBounds.width / 2, dbug = false;
 
 if (dbug) {
   highlightWs = true;
-  logging = verbose = true;
+  logging = true;
+  verbose = true;
   readDelay = 1;
 }
 doLayout();
@@ -112,11 +118,11 @@ ramble();// go
 // would result in line more than 5% off the target-width
 function contextualRandom(wordIdx, oldWord, similars, opts) {
 
-  let dbug = false;
+  let ldbug = false;
   let isShadow = opts && opts.isShadow;
   if (isShadow) return RiTa.random(similars);
 
-  if (dbug) updateDelay = 10000000;
+  if (ldbug) updateDelay = 10000000; // stop after 1 update
 
   let wordEle = document.querySelector(`#w${wordIdx}`);
   let lineEle = wordEle.parentElement.parentElement;
@@ -132,7 +138,7 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   let { font, wordSpacing } = window.getComputedStyle(lineEle)
   let currentLineWidth = measureWidthCtx(text, font, wordSpacing);
 
-  if (dbug) console.log('lineIdx=' + lineIdx + ' text: "' + text
+  if (ldbug) console.log('lineIdx=' + lineIdx + ' text: "' + text
     + '"\nminAllowed=' + minAllowedWidth + ' target=' + targetWidth
     + ' current=' + currentLineWidth + ' maxAllowed=' + maxAllowedWidth);
 
@@ -145,11 +151,11 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
     let res = widthChangePercentage(sim, wordIdx, ['max', 'min']);// 'opt']);
-    if (dbug) console.log("-- @" + lineIdx + '.' + wordIdx + " word: "
+    if (ldbug) console.log("-- @" + lineIdx + '.' + wordIdx + " word: "
       + oldWord + ", option: " + sim + ", result: ", res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
-      if (dbug) console.log('-- *** reject: ' + sim, res);
+      if (ldbug) console.log('-- *** reject: ' + sim, res);
       return false;
     }
     return true; // allowed
@@ -157,18 +163,18 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   //console.timeEnd('Execution Time Ctx');
   if (!options.length) {
-    if (dbug) console.log('-- reverting to random');
+    if (ldbug) console.log('-- reverting to random');
     options = similars;
   }
   else {
-    if (dbug) console.log('-- opts(' + options.length + '): [' + options + ']');
+    if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
   }
 
   if (0) {
     console.time('Execution Time Dom');
     similars.forEach(sim => {
       let res = widthChangePercentageDom(sim, wordIdx, ['max', 'min', 'opt']);
-      if (dbug) console.log("@" + lineIdx + '.' + wordIdx + " word: "
+      if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + " word: "
         + oldWord + ", option: " + sim + ", result-DOM: ", res);
     })
     console.timeEnd('Execution Time Dom');
@@ -301,15 +307,12 @@ function replace() {
   let shadow = shadowTextName();
   let idx = RiTa.random(repids.filter(id => !reader
     || !reader.selection().includes(sources[domain][id])));
-  //idx = 261; //updateDelay = 10000000; // tmp-remove
+  
+  //idx = 261; //updateDelay = 10000000; // DBUG: remove
+
   let dword = last(history[domain][idx]);
   let sword = last(history[shadow][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
-
-  // let lidx = lineIdFromWordId(idx); // tmp-remove
-  // let le = document.getElementById('l' + lidx);
-  // le.firstChild.classList.add("min-word-spacing");
-  // causing flickering hightlighting, I don't think this is necessary? -JC
 
   worker.postMessage({ event: 'lookup', data }); // do similar search
 }
@@ -339,16 +342,19 @@ function postReplace(e) {
     delayMs = Math.max(1, updateDelay - ms);
     if ((logging && verbose) || stepMode) {
       let style = window.getComputedStyle(lineEle);
+      let text = lineEle.firstChild.textContent;
       console.log(`${numMods()}) @${lineIdFromWordId(idx)}.${idx} `
         + `${dword}->${dnext}(${domain.substring(0, 1)}), `
         + `${sword}->${snext}(${shadow.substring(0, 1)}) `
         + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(3)}`
-        + ` adjustedWidth=` + measureWidthCtx(lineEle.firstChild.textContent, style.font, wordSpaceEm));
+        + ` adjustedWidth=` + measureWidthCtx(text, style.font, wordSpaceEm));
     }
   }
   else {
-    console.log(`[FAIL] @${lineIdFromWordId(idx)}.${idx} `
-      + `${dword}->${dsims.length}, ${sword}->${ssims.length} [${pos}]`);
+    let msg = `[FAIL] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
+    if (!dsims.length) msg += `No similars found for '${dword}' `;
+    if (!ssims.length) msg += `No similars found for '${sword}' (shadow)`;
+    console.warn(msg);
   }
 
   if (!stepMode) state.loopId = setTimeout(ramble, delayMs);
@@ -390,10 +396,10 @@ function restore() {
   else {
     let id = repids.find(idx => history[domain][idx].length > 1);
     let word = sources[domain][id], hist = history[domain][id];
-    console.log('[WARN] Invalid-state, numMods:'
+    console.warn('[WARN] Invalid-state, numMods:'
       + numMods() + ' idx=' + id + '/' + word + ' history=', hist);
-    displayWords.forEach((w, i) => console.log(i, w, JSON.stringify(history[domain][i])));
-    return stop();
+    //displayWords.forEach((w, i) => console.log(i, w, JSON.stringify(history[domain][i])));
+    //return stop();
   }
 
   if (updateState() && !state.stepMode) {
@@ -445,7 +451,9 @@ function replaceables() { // [] of replaceable indexes
   });
   sources.urban.forEach((word, idx) => {
     if (isReplaceable(word)) {
-      if (!repids.includes(idx)) throw Error('Invalid state[1]: ' + idx + '/' + word);
+      if (!repids.includes(idx)) {
+        throw Error('Invalid state[1]: ' + idx + '/' + word);
+      }
       count++;
     }
   });
@@ -453,8 +461,8 @@ function replaceables() { // [] of replaceable indexes
   return repids;
 }
 
-function isReplaceable(word) {
-  return (word.length >= minWordLength || similarOverrides[word])
+function isReplaceable(word) { // duplicated in worker
+  return (word.length >= minWordLength || word in similarOverrides)
     && !stops.includes(word);
 }
 

@@ -27,6 +27,7 @@ let overrides = {
 };
 
 let state = { sources, ignores, stops, minWordLength }, similarCache = {};
+console.log(state);
 
 function findSimilars(idx, word, pos, state) {
 
@@ -46,7 +47,7 @@ function findSimilars(idx, word, pos, state) {
       !ignores.includes(sim)
       && !word.includes(sim)
       && !sim.includes(word)
-      && isReplaceable(word, state));
+      && isReplaceable(sim, state));
 
     if (sims.length) {
       // let elapsed = Date.now() - timestamp;
@@ -85,7 +86,7 @@ function quotify(arr) {
 function isReplaceable(word, state) {
   //console.log(state);
   let { stops, minWordLength } = state;
-  return (word.length >= minWordLength || overrides[word])
+  return (word.length >= minWordLength || word in overrides)
     && !stops.includes(word);
 }
 
@@ -94,11 +95,18 @@ let missing = ["animal/jj", "sunset/nn", "most/rbs", "circadian/nn", "simply/rb"
   "familiar/jj", "mildly/rb", "marshaling/vbg", "singular/jj", "since/in", "beyond/in",
 ];
 
-missing.forEach((w, i) => {
-  let [word, pos] = w.split('/');
-  lookupWord(word, pos);
-});
-lookupWord('sunset', 'nn');
+// missing.forEach((w, i) => {
+//   let [word, pos] = w.split('/');
+//   lookupWord(word, pos);
+// });
+
+//console.log(sources.rural.filter((w,i) => w=='might' && console.log(w,sources.pos[i])));
+//lookupWord('might', 'md');
+
+let word = 'may';
+console.log(isReplaceable(word, state));
+//console.log(((word.length >= minWordLength) || overrides[word]));// && !stops.includes(word))
+//|| overrides[word]) && !stops.includes(word)));
 
 function lookupWord(word, pos) {
   let idx, counter;//, word = 'animal';

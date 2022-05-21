@@ -42,7 +42,7 @@ function keyhandler(e) {
     console.log('[KEYB] highlights: ' + highlights);
   }
   else if (e.code === 'KeyE') {
-    if (logging) console.log('[KEYB] stop');
+    if (logging) console.log('[KEYB] end');
     stop();
   }
   else if (e.code === 'KeyS') {

@@ -889,10 +889,6 @@ let cache = {
     "carcass",
     "dryness"
   ],
-  "might": [
-    "must",
-    "ought"
-  ],
   "quiet": [
     "quaint",
     "built"

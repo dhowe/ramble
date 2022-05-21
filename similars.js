@@ -5,12 +5,14 @@ importScripts('cache.js');
 const maxResults = 20;
 const lex = RiTa.lexicon();
 const similarCache = typeof cache !== 'undefined' ? cache : {};
+let overrides;
 
 const eventHandlers = {
   init: function (data, worker) {
-    const num = Object.entries(data.overrides).length;
+    overrides = data.overrides;
+    const num = Object.entries(overrides).length;
     console.log('[INFO] Found ' + num + ' cache overrides');
-    Object.entries(data.overrides).forEach(([k, v]) => similarCache[k] = v);
+    Object.entries(overrides).forEach(([k, v]) => similarCache[k] = v);
     if (similarCache) {
       console.info('[INFO] Using cached similars'
         + ` [${Object.keys(similarCache).length}]`);
@@ -34,7 +36,6 @@ const eventHandlers = {
 
 this.onmessage = function (e) {
   let { event, data } = e.data;
-  //console.log('worker.onmessage:', event, typeof eventHandlers[event]);
   eventHandlers[event](data, this);
 }
 
@@ -42,9 +43,9 @@ function findSimilars(idx, word, pos, state, timestamp) {
 
   let { ignores, sources } = state;
 
-  //console.log('findSimilars:', ignores, sources);
+  let result;
   if (word in similarCache) {
-    return randomSubset(similarCache[word]);
+    result = randomSubset(similarCache[word]);
   }
   else {
     let limit = 20, shuffle = true;
@@ -57,39 +58,45 @@ function findSimilars(idx, word, pos, state, timestamp) {
       !ignores.includes(cand)
       && !word.includes(cand)
       && !cand.includes(word)
-      && isReplaceable(word, state));
+      && isReplaceable(cand, state));
 
     if (sims.length) {
       let elapsed = Date.now() - timestamp;
       similarCache[word] = sims; // to cache
       //console.log('[CACHE] (' + elapsed + 'ms) ' + word + '/' + pos
       //+ ': ' + trunc(sims) + ' [' + Object.keys(similarCache).length + ']');
-      return sims;
     }
   }
 
-  let inSource = sources.rural[idx] === word
-    || sources.urban[idx] === word && sources.pos[idx] === pos;
+  if (!result || !result.length) {
+    result = [];
+    
+    let inSource = sources.rural[idx] === word
+      || sources.urban[idx] === word && sources.pos[idx] === pos;
 
-  if (inSource && !sourceMisses.has(word + '/' + pos)) {
-    sourceMisses.add(word + '/' + pos)
-    console.warn('[WARN] No similars for: "' + word + '"/' + pos
-      + (inSource ? ' *** [In Source] ' + JSON.stringify(Array.from(sourceMisses)) : ''));
+    if (inSource && !sourceMisses.has(word + '/' + pos)) {
+      sourceMisses.add(word + '/' + pos)
+      console.warn('[WARN] No similars for: "' + word
+        + '"/' + pos + (inSource ? ' *** [In Source] '
+          + JSON.stringify(Array.from(sourceMisses)) : ''));
+    }
   }
 
-  return [];
+  return result;
 }
-let sourceMisses = new Set();
+let sourceMisses = new Set(); // debugging
 
 function randomSubset(sims) {
+  if (!sims || !sims.length) return [];
   return shuffle(sims).slice(0, Math.min(maxResults, sims.length));
 }
 
 function isReplaceable(word, state) {
-  //console.log(state);
-  let { stops, overrides, minWordLength } = state;
-  return (word.length >= minWordLength || overrides[word])
+  let { stops, minWordLength } = state;
+  let res = (word.length >= minWordLength || word in overrides)
     && !stops.includes(word);
+  //console.log(word, res);
+  return res;
 }
 
 function trunc(arr, len = 100) {
