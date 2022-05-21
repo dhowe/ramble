@@ -74,19 +74,29 @@ const getInitialContentWidths = function (n, useCtx) {
   }
   @param: newWord: str, the word  to change to
           wordId: int, the id of the word to be changed
+          lineId: int, the id of the line the word is in
+          isShadow: boolean, true if doing for shadow text
           field: arr, return field, ['max', 'min', 'opt'] 
           // only get the neccessary ones for the best performance
 */
-const widthChangePercentage = function (newWord, wordIdx, fields = ['max', 'min']) {
+const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 
   let result = {};
-  let wordEle = document.getElementById("w" + wordIdx);
-  let originalWord = wordEle.textContent;
-  let spanContainer = wordEle.parentElement;
-  let lineEle = spanContainer.parentElement;
-  let lineIdx = parseInt(lineEle.id.slice(1));
+  let getShadowTxt;
+  if (isShadow) {
+    getShadowTxt = () => {
+      let r = []
+      wordLineMap.line2Word[lineIdx].forEach(wi => r.push(history[shadowTextName()].map(last)[wi]));
+      return r.join(" ");
+    }
+  }
+  let wordEle = isShadow ? null : document.getElementById("w" + wordIdx);
+  let lineIdx = wordLineMap.word2Line[wordIdx];
+  let originalWord = isShadow? history[shadowTextName()].map(last)[wordIdx] : wordEle.textContent;
+  let spanContainer = isShadow? null : wordEle.parentElement;
+  let lineEle = document.getElementById("l" + lineIdx);
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let newtxt = spanContainer.textContent.replace(originalWord, newWord);
+  let newtxt = isShadow ? getShadowTxt() : spanContainer.textContent.replace(originalWord, newWord);
   let style = window.getComputedStyle(lineEle);
 
   if (fields.includes('max')) {
@@ -102,6 +112,7 @@ const widthChangePercentage = function (newWord, wordIdx, fields = ['max', 'min'
   }
 
   if (fields.includes('opt')) {
+    if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
     let currentWidth = measureWidthCtx(newtxt, style.font, currentWsPx + "px");
@@ -125,6 +136,7 @@ const widthChangePercentage = function (newWord, wordIdx, fields = ['max', 'min'
 
 /*
   Computes the change of width in percentage after a word change using client rectangle
+  !!!Not used and updated!!!
   @return {
       min: array[percentage, width] distance to target width with minimal word spacing,
       max: array[percentage, width] distance to target width with max word spacing
