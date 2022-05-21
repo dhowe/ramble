@@ -74,7 +74,6 @@ const getInitialContentWidths = function (n, useCtx) {
   }
   @param: newWord: str, the word  to change to
           wordId: int, the id of the word to be changed
-          lineId: int, the id of the line the word is in
           isShadow: boolean, true if doing for shadow text
           field: arr, return field, ['max', 'min', 'opt'] 
           // only get the neccessary ones for the best performance
