@@ -73,7 +73,7 @@ const createCircularDOM = function (target, initialRadius, lines) {
       wrapperSpan.classList.add("wrapper");
       let words = RiTa.tokenize(line.text);
       words.forEach((w, iil) => {
-        if (iil > 0 && !RiTa.isPunct(w)) wrapperSpan.append(" ");
+        if (iil > 0 && (w === '…' || !RiTa.isPunct(w))) wrapperSpan.append(" ");
         let wordSpan = document.createElement("span");
         wordSpan.classList.add("word");
         wordLineMap.line2Word[lineIdx].push(wordIdx);
@@ -200,7 +200,7 @@ const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
   }
   words = words.slice(i); // remove used words
 
-  if (RiTa.isPunct(words[0])) { // punct shouldn't start a line
+  if (words[0] !== '…' && RiTa.isPunct(words[0])) { // punct shouldn't start a line
     line.text += words.shift();
   }
 

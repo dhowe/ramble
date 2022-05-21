@@ -5,8 +5,8 @@ class Reader {
     this.timeoutId = 0;
     this.pauseForId = 0;
     this.reading = false;
-    this.spans = Array.from(elements);
     this.numVisibleWords = 13;
+    this.spans = Array.from(elements);
     RiTa.SILENCE_LTS = true; // no logging of lts
   }
 
@@ -76,7 +76,7 @@ class Reader {
     if (digitsRE.test(word)) return basetime + word.length * syltime; // word is all number
 
     if (!RiTa.isPunct(word)) {
-      // the following handles 'word's such as "well-illustrated"
+      // the following handles hyphenated words such as "well-illustrated"
       let syls = RiTa.syllables(word.replaceAll(hyphensRE, " ")).replaceAll(" ", "/");
       let time = basetime + syls.split('/').length * syltime; // syls * basic unit
       time += syls.split(splitRE).length * (syltime / 12); // add 1/12 of a syltime for each phoneme
