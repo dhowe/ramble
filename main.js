@@ -123,7 +123,7 @@ ramble();// go
 // would result in line more than 5% off the target-width
 function shadowRandom(wordIdx, similars) {
 
-  let ldbug = true;
+  let ldbug = false;
   let lineIdx = wordLineMap.word2Line[wordIdx]
   let targetWidth = initialMetrics.lineWidths[lineIdx];
   let oldWord = history[shadowTextName()].map(last)[wordIdx];
