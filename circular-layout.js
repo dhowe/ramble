@@ -183,8 +183,10 @@ const fitToLineWidths = function (offset, radius, words, metrics) {
   @return: { words: remaining words, text: words that fit on line }
 */
 const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
-  const minWordNum = 2;
-  // caculation in scale=1, not current scale
+
+  const minWordNum = 3;
+
+  // calculation in scale=1, not current scale
   let i = 1, line = {
     text: words[0],
     width: measureWidth(words[0], fontSize, fontName, wordSpacing)
@@ -200,7 +202,8 @@ const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
     line.width += nextWidth;
   }
 
-  if (i < minWordNum) { return }
+  if (i < minWordNum) return; // no orphans or widows;
+
   words = words.slice(i); // remove used words
 
   if (RiTa.isPunct(words[0])) { // punct shouldn't start a line
