@@ -50,7 +50,7 @@ const getLineWidth = function (line, wordSpacing = undefined) {
   return width;
 }
 
-const getInitialContentWidths = function (n, useCtx) {
+const getInitialContentWidths = function (n, useCtx) { // unused
   let r = [];
   for (let i = 0; i < n; i++) {
     const lineEle = document.getElementById("l" + i);
@@ -68,9 +68,9 @@ const getInitialContentWidths = function (n, useCtx) {
 /*
   Computes the estimated change of width in percentage after a word change
   @return {
-      min: array[percentage, width] distance to target width with minimal word spacing,
-      max: array[percentage, width] distance to target width with max word spacing
-      opt: array[percentage, width, wsPx(num in px), wsEm] distance to target width after ws adjustment
+      min: [percentage, width] - distance to target width with min word spacing,
+      max: [percentage, width] - distance to target width with max word spacing
+      opt: [percentage, width, ws (in px), ws (in em)] - distance to target after ws adjustment (unused)
   }
 
   @param newWord: str, the word  to change to
@@ -78,8 +78,8 @@ const getInitialContentWidths = function (n, useCtx) {
   @param isShadow: boolean, true if using shadow text
   @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
 
-  @optimization if we measure new width with 'minWordSpace', we should be able to compute width 
-  with 'maxWordSpace', based on the numSpaces, without another measure call (possible future)
+  @optimise if we measure new width with 'minWordSpace', we should be able to compute width 
+  with 'maxWordSpace', based on the numSpaces, without another measure call (possible-futures)
 */
 const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 
@@ -107,24 +107,30 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
   }
 
   if (fields.includes('opt')) {
-    if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
+    if (isShadow) throw Error('\'opt\' field not available for shadow text');
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
+
     let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
     let direction = currentWidth >= targetWidth ? -1 : 1;
-    let bound1 = currentWsPx, bound2, w1;
+    let bound1 = currentWsPx;
     while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
       bound1 += step * direction;
       currentWidth = measureWidthCtx(newText, style.font, bound1 + "px");
     }
 
-    w1 = currentWidth;
-    bound2 = bound1 - (step * direction);
+    let w1 = currentWidth;
+    let bound2 = bound1 - (step * direction);
     currentWidth = measureWidthCtx(newText, style.font, bound2 + "px");
 
-    let finalWidth = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? currentWidth : w1;
-    let finalWs = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? bound2 : bound1;
-    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100, finalWidth, finalWs, finalWs / initialMetrics.fontSize]
+    let diff = Math.abs(currentWidth - targetWidth);
+    let finalWidth = Math.abs(w1 - targetWidth) >= diff ? currentWidth : w1;
+    let finalWs = Math.abs(w1 - targetWidth) >= diff ? bound2 : bound1;
+    
+    result.opt = [
+      ((finalWidth - targetWidth) / finalWidth) * 100,
+      finalWidth, finalWs, finalWs / initialMetrics.fontSize
+    ];
   }
 
   return result;

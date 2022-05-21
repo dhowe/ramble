@@ -2,20 +2,37 @@
 importScripts('lib/rita.js');
 importScripts('cache.js');
 
-const maxResults = 20;
-const lex = RiTa.lexicon();
-const similarCache = typeof cache !== 'undefined' ? cache : {};
+let maxResults = 20;
+let lex = RiTa.lexicon();
+let similarCache = typeof cache !== 'undefined' ? cache : {};
 let overrides;
 
 const eventHandlers = {
   init: function (data, worker) {
     overrides = data.overrides;
-    const num = Object.entries(overrides).length;
-    console.log('[INFO] Found ' + num + ' cache overrides');
-    Object.entries(overrides).forEach(([k, v]) => similarCache[k] = v);
+    let num = Object.entries(overrides).length;
+    let msg = '[INFO] Found ' + num + ' similar overrides, ';
+    //Object.entries(overrides).forEach(([k, v]) => tmpCache[k] = v);
+    Object.entries(overrides).forEach(([word, sims]) => {
+      sims.forEach(next => {
+        if (!(next in overrides)) {
+          overrides[next] = [word];
+          let nextSims = sims.filter(w => w !== next);
+          nextSims.forEach(sim => {
+            if (!overrides[next].includes(sim)) {
+              overrides[next].push(sim);
+            }
+          });
+        }
+      });
+    });
+    msg += Object.entries(overrides).length + ' entries';
+    console.info(msg);
     if (similarCache) {
-      console.info('[INFO] Using cached similars'
-        + ` [${Object.keys(similarCache).length}]`);
+      msg = `[INFO] Loaded ${Object.keys(similarCache).length} cached similars, `;
+      Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
+      msg += Object.entries(similarCache).length +' total entries';
+      console.info(msg);
     }
     else {
       console.info('[INFO] No cache, doing live lookups');
@@ -70,7 +87,7 @@ function findSimilars(idx, word, pos, state, timestamp) {
 
   if (!result || !result.length) {
     result = [];
-    
+
     let inSource = sources.rural[idx] === word
       || sources.urban[idx] === word && sources.pos[idx] === pos;
 
@@ -84,7 +101,7 @@ function findSimilars(idx, word, pos, state, timestamp) {
 
   return result;
 }
-let sourceMisses = new Set(); // debugging
+const sourceMisses = new Set(); // debugging
 
 function randomSubset(sims) {
   if (!sims || !sims.length) return [];
