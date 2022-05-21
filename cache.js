@@ -2947,17 +2947,6 @@ let cache = {
     "raised",
     "major"
   ],
-  "sound": [
-    "bound",
-    "drowned",
-    "ground",
-    "inbound",
-    "newfound",
-    "profound",
-    "renowned",
-    "round",
-    "unbound"
-  ],
   "never": [
     "forever",
     "however",
@@ -3154,10 +3143,6 @@ let cache = {
     "baths",
     "maths",
     "wraths"
-  ],
-  "violent": [
-    "violence",
-    "violet"
   ],
   "found": [
     "bound",

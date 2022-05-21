@@ -80,16 +80,12 @@ let missing = ["animal/jj", "sunset/nn", "most/rbs", "circadian/nn", "simply/rb"
 //   lookupWord(word, pos);
 // });
 
-console.log(RiTa.untokenize(sources.urban));
-//console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
-//lookupWord('spreads', 'vbz', true);
-
 //let word = 'may';
 //console.log(isReplaceable(word, state));
 //console.log(((word.length >= minWordLength) || overrides[word]));// && !stops.includes(word))
 //|| overrides[word]) && !stops.includes(word)));
 
-function lookupWord(word, pos, forcePos) {
+function lookupWord(word, pos, forcePos=0) {
   let idx, counter;//, word = 'animal';
   let uidx = sources.urban.indexOf(word);
   let ridx = sources.rural.indexOf(word);
@@ -106,7 +102,7 @@ function lookupWord(word, pos, forcePos) {
     console.log('remove ' + word + '/' + pos);
     return;
   }
-  console.log('forcePos=',forcePos);
+  
   if (!forcePos && (pos && pos !== sources.pos[idx])) {
     throw Error(word + " '" + pos + '\'!=\'' + sources.pos[idx] + "'");
   }
@@ -123,3 +119,7 @@ function lookupWord(word, pos, forcePos) {
   }
 
 }
+
+console.log(RiTa.untokenize(sources.urban));
+//console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
+lookupWord('coiled', 'jj', true);

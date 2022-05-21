@@ -30,24 +30,26 @@ let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
 
 // these override lookup values
 let similarOverrides = {
-  avoid: ['elude', 'escape', 'evade'],
-  neighbors: ['brothers', 'brethren', 'fellows'],
-  rending: ['ripping', 'cleaving', 'rupturing', 'splitting', 'severing'],
-  inhuman: ['grievous', 'grim', 'hard', 'heavy', 'onerous', 'oppressive', 'rough', 'rugged', 'severe', 'austere', 'inclement', 'intemperate'],
-  sometimes: ['occasionally', 'intermittently', 'periodically', 'recurrently', 'infrequently', 'rarely', 'irregularly', 'sporadically', 'variously'],
-  adventure: ['experience', 'exploit', 'occasion', 'ordeal', 'venture', 'expedition', 'mission'],
-  unfamiliar: ['unconventional', 'pioneering', 'unaccustomed', 'unprecedented'],
-  coiled: ['twisted', 'twisting', 'curling', 'curving', 'serpentine', 'corkscrewed', 'jagged', 'meandering', 'spiraled'],
-  particularly: ['specifically', 'generally', 'aptly'],
-  unsettled: ['unresolved', 'uncertain', 'undecided', 'rootless'],
-  dip: ['blip', 'chip', 'clip', 'drip', 'grip', 'microchip', 'quip', 'roundtrip', 'ship', 'slip', 'snip', 'strip', 'trip', 'whip'],
-  set: ['caressed', 'digressed', 'forget', 'progressed', 'redressed', 'regressed', 'seat'],
-  sunset: ['dawning', 'daybreak', 'daylight', 'morning', 'sunrise', 'sunup', 'daytime', 'forenoon', 'crepuscule', 'dusk', 'evening', 'gloaming', 'night', 'nightfall', 'sundown', 'twilight', 'subset', 'inset', 'alphabet', 'mindset', 'quintet'],
+  avoid: ["elude", "escape", "evade"],
+  neighbors: ["brothers", "brethren", "fellows"],
+  rending: ["ripping", "cleaving", "rupturing", "splitting", "severing"],
+  inhuman: ["grievous", "grim", "hard", "heavy", "onerous", "oppressive", "rough", "rugged", "severe", "austere", "inclement", "intemperate"],
+  sometimes: ["occasionally", "intermittently", "periodically", "recurrently", "infrequently", "rarely", "irregularly", "sporadically", "variously"],
+  adventure: ["experience", "exploit", "occasion", "ordeal", "venture", "expedition", "mission"],
+  unfamiliar: ["unconventional", "pioneering", "unaccustomed", "unprecedented"],
+  coiled: ["twisted", "twisting", "curling", "curving", "serpentine", "corkscrewed", "jagged", "meandering", "spiraled"],
+  particularly: ["specifically", "generally", "aptly"],
+  unsettled: ["unresolved", "uncertain", "undecided", "rootless"],
+  dip: ["blip", "chip", "clip", "drip", "grip", "microchip", "quip", "roundtrip", "ship", "slip", "snip", "strip", "trip", "whip"],
+  set: ["caressed", "digressed", "forget", "progressed", "redressed", "regressed", "seat"],
+  sunset: ["dawning", "daybreak", "daylight", "morning", "sunrise", "sunup", "daytime", "forenoon", "crepuscule", "dusk", "evening", "gloaming", "night", "nightfall", "sundown", "twilight", "subset", "inset", "alphabet", "mindset", "quintet"],
   terror: ["error", "feather", "fear", "texture", "torture", "timbre", "desolation", "tincture"], // nn
-  might: ['could', 'would', 'should', 'must'],
-  should: ['could', 'would', 'might', 'must'],
-  would: ['could', 'should', 'might', 'must'],
-  could: ['would', 'should', 'might', 'must']
+  violent: ["violet", "silent", "transparent", "sharp", "steep", "oblique", "towering"],// jj
+  sound: ["ground", "gesture", "vibration", "sense", "emotion", "thought"], // nn
+  might: ["could", "would", "should", "must"],
+  should: ["could", "would", "might", "must"],
+  would: ["could", "should", "might", "must"],
+  could: ["would", "should", "might", "must"]
 };
 
 // words considered un-replaceable
@@ -71,6 +73,9 @@ let sources = {
 // correct pos issues (see #80) TODO: add as RiTa issues
 sources.pos[22] = 'vbz'; // <- nns (spreads/spreads)
 sources.pos[66] = 'jj'; // <- nns (circadian/violent)
+sources.pos[244] = 'vbg'; // <- nn (rending/rending)
+sources.pos[259] = 'nn'; // <- jj (sound/sound)
+sources.pos[361] = 'jj'; // <- nn coiled/lapping
 
 let state = {
   maxLegs: walks.short,
@@ -388,7 +393,7 @@ function postReplace(e) {
     }
   }
   else {
-    let msg = `[FAIL] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
+    let msg = `[SIMS] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
     if (beingRead(idx)) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `No similars found for '${dword}' `;
     if (!ssims.length) msg += `No similars found for '${sword}' (shadow)`;
