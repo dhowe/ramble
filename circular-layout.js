@@ -55,29 +55,29 @@ const createCircularDOM = function (target, initialRadius, lines) {
   textDisplay.style.height = initialRadius * 2 + "px";
 
   let wordIdx = 0;
-  lines.forEach((l, li) => {
+  lines.forEach((line, lineIdx) => {
     let lineDiv = document.createElement("div");
     lineDiv.classList.add("line");
-    lineDiv.style.fontSize = (l.fontSize || fontSize) + "px";
-    lineDiv.style.fontFamily = l.fontFamily || 'sans-serif';
-    lineDiv.style.wordSpacing = l.wordSpacing + "em";
-    lineDiv.style.top = (l.bounds[1] - l.bounds[3] / 2) + "px";
-    lineDiv.id = "l" + li;
-    wordLineMap.line2Word[li] = []; 
+    lineDiv.style.fontSize = (line.fontSize || fontSize) + "px";
+    lineDiv.style.fontFamily = line.fontFamily || 'sans-serif';
+    lineDiv.style.wordSpacing = line.wordSpacing + "em";
+    lineDiv.style.top = (line.bounds[1] - line.bounds[3] / 2) + "px";
+    lineDiv.id = "l" + lineIdx;
+    wordLineMap.line2Word[lineIdx] = []; 
 
-    if (l.text && l.text.length > 0) {
+    if (line.text && line.text.length > 0) {
       let wrapperSpan = document.createElement("span");
       wrapperSpan.style.display = "inline-block";
       //if (li === 0) wrapperSpan.style.outline = '1px solid red';
 
       wrapperSpan.classList.add("wrapper");
-      let words = RiTa.tokenize(l.text);
+      let words = RiTa.tokenize(line.text);
       words.forEach((w, iil) => {
         if (iil > 0 && !RiTa.isPunct(w)) wrapperSpan.append(" ");
         let wordSpan = document.createElement("span");
         wordSpan.classList.add("word");
-        wordLineMap.line2Word[li].push(wordIdx);
-        wordLineMap.word2Line[wordIdx] = li;
+        wordLineMap.line2Word[lineIdx].push(wordIdx);
+        wordLineMap.word2Line[wordIdx] = lineIdx;
         wordSpan.id = "w" + wordIdx++;
         wordSpan.innerText = w;
         wrapperSpan.append(wordSpan);
@@ -86,7 +86,7 @@ const createCircularDOM = function (target, initialRadius, lines) {
     }
 
     textDisplay.append(lineDiv);
-    lineWidths.push(l.bounds[2]);
+    lineWidths.push(line.bounds[2]);
   });
 
   target.append(textDisplay);
