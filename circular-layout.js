@@ -183,6 +183,7 @@ const fitToLineWidths = function (offset, radius, words, metrics) {
   @return: { words: remaining words, text: words that fit on line }
 */
 const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
+  const minWordNum = 2;
   // caculation in scale=1, not current scale
   let i = 1, line = {
     text: words[0],
@@ -198,6 +199,8 @@ const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
     line.text += next;
     line.width += nextWidth;
   }
+
+  if (i < minWordNum) { return }
   words = words.slice(i); // remove used words
 
   if (words[0] !== '…' && RiTa.isPunct(words[0])) { // punct shouldn't start a line
