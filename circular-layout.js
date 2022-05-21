@@ -1,6 +1,8 @@
 /*
   Layout lines within radius, adjusting font-size as needed
-  @params words, radius, opts = {
+  @param words
+  @param radius
+  @param opts = {
     opts.offset : object: { x: x, y: y };
     opts.padding: float;
     opts.fontFamily: css str
@@ -8,7 +10,7 @@
     opts.lineHeightScale: float;
     opts.wordSpacing: float, in em
   }
-  @return [fontSize, wordSpacing, bounds, text, fontFamily]
+  @return [{fontSize, wordSpacing, bounds, text, fontFamily}]
 */
 const layoutCircularLines = function (words, radius, opts = {}) {
 
@@ -32,7 +34,7 @@ const layoutCircularLines = function (words, radius, opts = {}) {
     fontSize, wordSpacing: wordSpace, bounds: r, text: result.text[i], fontFamily
   }));
 
-  return answer; // [fontSize, wordSpacing, bounds, text, fontFamily]
+  return answer;
 }
 
 /*
