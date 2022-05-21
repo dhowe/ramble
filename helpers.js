@@ -13,7 +13,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   let wordSpacePx = wordSpacing || 0;
   if (typeof wordSpacing === 'number') {
     wordSpacePx = wordSpacing * initialMetrics.fontSize;
-  } 
+  }
   else if (typeof wordSpacing === 'string') {
     if (/px/.test(wordSpacing)) {
       wordSpacePx = parseFloat(wordSpacing.replace("px", "").trim());
@@ -26,7 +26,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   } else {
     throw Error("Invalid wordSpacing arg");
   }
-  
+
   let width = measureCtx.measureText(text).width;
   let numSpaces = text.split(' ').length - 1;
 
@@ -84,32 +84,25 @@ const getInitialContentWidths = function (n, useCtx) {
 const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 
   let result = {};
-  let getShadowTxt;
-  if (isShadow) {
-    getShadowTxt = () => {
-      let r = []
-      wordLineMap.line2Word[lineIdx].forEach(wi => r.push(history[shadowTextName()].map(last)[wi]));
-      return r.join(" ");
-    }
-  }
-  let wordEle = isShadow ? null : document.getElementById("w" + wordIdx);
+  let wordEle = isShadow ? undefined : document.getElementById("w" + wordIdx);
   let lineIdx = wordLineMap.word2Line[wordIdx];
-  let originalWord = isShadow? history[shadowTextName()].map(last)[wordIdx] : wordEle.textContent;
-  let spanContainer = isShadow? null : wordEle.parentElement;
+  let originalWord = isShadow ? history[shadowTextName()].map(last)[wordIdx] : wordEle.textContent;
+  let spanEle = isShadow ? undefined : wordEle.parentElement;
   let lineEle = document.getElementById("l" + lineIdx);
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let newtxt = isShadow ? getShadowTxt() : spanContainer.textContent.replace(originalWord, newWord);
+  let originalText = isShadow ? getShadowText(lineIdx) : spanEle.textContent;
+  let newText = originalText.replace(originalWord, newWord); // if multiple words?
   let style = window.getComputedStyle(lineEle);
 
   if (fields.includes('max')) {
     let maxWsPx = maxWordSpace * initialMetrics.fontSize;
-    let widthMaxWs = measureWidthCtx(newtxt, style.font, maxWsPx + "px");
+    let widthMaxWs = measureWidthCtx(newText, style.font, maxWsPx + "px");
     result.max = [((widthMaxWs - targetWidth) / targetWidth) * 100, widthMaxWs]
   }
 
   if (fields.includes('min')) {
     let minWsPx = minWordSpace * initialMetrics.fontSize;
-    let widthMinWs = measureWidthCtx(newtxt, style.font, minWsPx + "px");
+    let widthMinWs = measureWidthCtx(newText, style.font, minWsPx + "px");
     result.min = [((widthMinWs - targetWidth) / targetWidth) * 100, widthMinWs]
   }
 
@@ -117,23 +110,30 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
     if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
-    let currentWidth = measureWidthCtx(newtxt, style.font, currentWsPx + "px");
+    let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
     let direction = currentWidth >= targetWidth ? -1 : 1;
     let bound1 = currentWsPx, bound2, w1;
-    while((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)){
+    while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
       bound1 += step * direction;
-      currentWidth = measureWidthCtx(newtxt, style.font, bound1 + "px");
+      currentWidth = measureWidthCtx(newText, style.font, bound1 + "px");
     }
-    w1 = currentWidth
+
+    w1 = currentWidth;
     bound2 = bound1 - (step * direction);
-    currentWidth = measureWidthCtx(newtxt, style.font, bound2 + "px");
-    
+    currentWidth = measureWidthCtx(newText, style.font, bound2 + "px");
+
     let finalWidth = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? currentWidth : w1;
     let finalWs = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? bound2 : bound1;
     result.opt = [((finalWidth - targetWidth) / finalWidth) * 100, finalWidth, finalWs, finalWs / initialMetrics.fontSize]
   }
 
   return result;
+}
+
+const getShadowText = function (lineIdx) {
+  let r = []
+  wordLineMap.line2Word[lineIdx].forEach(wi => r.push(history[shadowTextName()].map(last)[wi]));
+  return r.join(" ");
 }
 
 /*
@@ -187,7 +187,7 @@ const widthChangePercentageDom = function (newWord, wordIdx, fields = ['max', 'm
     let finalWs = parseFloat(window.getComputedStyle(lineEle).wordSpacing.replace("px", ""));
     lineEle.style.wordSpacing = originWs;
     spanContainer.className = "";
-    if (originalClass.length > 0) originalClass.forEach(c => {spanContainer.classList.add(c)});
+    if (originalClass.length > 0) originalClass.forEach(c => { spanContainer.classList.add(c) });
     result.opt = [((finalWidth - targetWidth) / targetWidth) * 100, finalWidth, finalWs, wordSpaceEm]
   }
 

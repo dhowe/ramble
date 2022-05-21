@@ -3870,10 +3870,6 @@ let cache = {
     "ropes",
     "telescopes"
   ],
-  "terror": [
-    "airy",
-    "anterior"
-  ],
   "ritual": [
     "habitual",
     "actual"

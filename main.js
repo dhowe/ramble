@@ -43,6 +43,7 @@ let similarOverrides = {
   dip: ['blip', 'chip', 'clip', 'drip', 'grip', 'microchip', 'quip', 'roundtrip', 'ship', 'slip', 'snip', 'strip', 'trip', 'whip'],
   set: ['caressed', 'digressed', 'forget', 'progressed', 'redressed', 'regressed', 'seat'],
   sunset: ['dawning', 'daybreak', 'daylight', 'morning', 'sunrise', 'sunup', 'daytime', 'forenoon', 'crepuscule', 'dusk', 'evening', 'gloaming', 'night', 'nightfall', 'sundown', 'twilight', 'subset', 'inset', 'alphabet', 'mindset', 'quintet'],
+  terror: ["error", "feather", "fear", "texture", "torture", "timbre", "desolation", "tincture"], // nn
   might: ['could', 'would', 'should', 'must'],
   should: ['could', 'would', 'might', 'must'],
   would: ['could', 'should', 'might', 'must'],
@@ -98,8 +99,8 @@ let measureCanvas = document.querySelector("#measure-ctx");
 let displayBounds = domDisplay.getBoundingClientRect();
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
-let wordLineMap = {word2Line:[],line2Word:[]};
 
+let wordLineMap = { word2Line: [], line2Word: [] };
 let reader, worker, spans, initialMetrics, scaleRatio;
 let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
@@ -120,38 +121,47 @@ ramble();// go
 
 // look at each similar, ignore those that, with min or max word-spacing
 // would result in line more than 5% off the target-width
+function shadowRandom(wordIdx, similars) {
+
+  let ldbug = true;
+  let lineIdx = wordLineMap.word2Line[wordIdx]
+  let targetWidth = initialMetrics.lineWidths[lineIdx];
+  let oldWord = history[shadowTextName()].map(last)[wordIdx];
+  let minAllowedWidth = targetWidth * .95;
+  let maxAllowedWidth = targetWidth * 1.05;
+
+  if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
+    + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
+    + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
+
+  let options = similars.filter(sim => {
+    let res = widthChangePercentage(sim, wordIdx, true, ['max', 'min']);
+    if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
+    let minWidth = res.min[1], maxWidth = res.max[1];
+    if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
+      if (ldbug) console.log('-- *** reject: ' + sim, res);
+      return false;
+    }
+    return true; // allowed
+  });
+
+  if (!options.length) {
+    if (ldbug) console.log('-- reverting to random');
+    options = similars;
+  }
+  else {
+    if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
+  }
+
+  return RiTa.random(options);
+}
+
+// look at each similar, ignore those that, with min or max word-spacing
+// would result in line more than 5% off the target-width
 function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   let ldbug = false;
-  let isShadow = opts && opts.isShadow;
-  if (isShadow) {
-    let lineIdx = wordLineMap.word2Line[wordIdx]
-    let targetWidth = initialMetrics.lineWidths[lineIdx];
-    let minAllowedWidth = targetWidth * .95;
-    let maxAllowedWidth = targetWidth * 1.05;
-
-    let options = similars.filter(sim => {
-      let res = widthChangePercentage(sim, wordIdx, true, ['max', 'min']);// 'opt']);
-      if (ldbug) console.log("-- @" + lineIdx + '.' + wordIdx + " word: "
-        + history[shadowTextName()].map(last)[wordIdx] + ", option: " + sim + ", result: ", res.min[1] + '-' + res.max[1]);
-      let minWidth = res.min[1], maxWidth = res.max[1];
-      if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
-        if (ldbug) console.log('-- *** reject: ' + sim, res);
-        return false;
-      }
-      return true; // allowed
-    });
-
-    if (!options.length) {
-      if (ldbug) console.log('-- reverting to random');
-      options = similars;
-    }
-    else {
-      if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
-    }
-
-    return RiTa.random(options);
-  }
+  if (opts && opts.isShadow) return shadowRandom(wordIdx, similars);
 
   if (ldbug) updateDelay = 10000000; // stop after 1 update
 
@@ -169,21 +179,20 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   let { font, wordSpacing } = window.getComputedStyle(lineEle)
   let currentLineWidth = measureWidthCtx(text, font, wordSpacing);
 
-  if (ldbug) console.log('lineIdx=' + lineIdx + ' text: "' + text
-    + '"\nminAllowed=' + minAllowedWidth + ' target=' + targetWidth
-    + ' current=' + currentLineWidth + ' maxAllowed=' + maxAllowedWidth);
+  if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
+    + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
+    + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
   if (currentLineWidth > maxAllowedWidth) console.log
-    ('[WARN] original(#' + lineIdx + ') too long: ' + currentLineWidth);
+    ('[WARN] current (#' + lineIdx + ') too long: ' + currentLineWidth);
 
   if (currentLineWidth < minAllowedWidth) console.log
-    ('[WARN] original(#' + lineIdx + ') too short: ' + currentLineWidth);
+    ('[WARN] current (#' + lineIdx + ') too short: ' + currentLineWidth);
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, false, ['max', 'min']);// 'opt']);
-    if (ldbug) console.log("-- @" + lineIdx + '.' + wordIdx + " word: "
-      + oldWord + ", option: " + sim + ", result: ", res.min[1] + '-' + res.max[1]);
+    let res = widthChangePercentage(sim, wordIdx, false, ['max', 'min']);
+    if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
       if (ldbug) console.log('-- *** reject: ' + sim, res);

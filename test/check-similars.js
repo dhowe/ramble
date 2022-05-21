@@ -80,9 +80,9 @@ let missing = ["animal/jj", "sunset/nn", "most/rbs", "circadian/nn", "simply/rb"
 //   lookupWord(word, pos);
 // });
 
-//console.log(RiTa.untokenize(sources.rural));
+console.log(RiTa.untokenize(sources.urban));
 //console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
-lookupWord('spreads', 'vbz', true);
+//lookupWord('spreads', 'vbz', true);
 
 //let word = 'may';
 //console.log(isReplaceable(word, state));
