@@ -395,8 +395,8 @@ function postReplace(e) {
   else {
     let msg = `[SIMS] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
     if (beingRead(idx)) msg += `'${dword}' is currently being read`;
-    if (!dsims.length) msg += `No similars found for '${dword}' `;
-    if (!ssims.length) msg += `No similars found for '${sword}' (shadow)`;
+    if (!dsims.length) msg += `None found for '${dword}' `;
+    if (!ssims.length) msg += `None found for '${sword}' (shadow)`;
     console.log(msg);
   }
 
