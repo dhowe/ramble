@@ -3,45 +3,32 @@ importScripts('lib/rita.js');
 importScripts('cache.js');
 
 let maxResults = 20;
-let lex = RiTa.lexicon();
-let enableMetaCache = true;
+let metaCacheEnabled = true;
 let similarCache = {};//typeof cache !== 'undefined' ? cache : {};
 let metaCache = {}, overrides, stops, ignores, sources;
 
 const eventHandlers = {
 
   init: function (data) {
-    
-    minWordLength = data.minWordLength;
-    overrides = data.overrides;
-    ignores = data.ignores;
-    sources = data.sources;
-    stops = data.stops;
+    ({ minWordLength, overrides, ignores, sources, stops } = data);
 
-    let num = Object.entries(overrides).length;
-    // validate the overrides
-    Object.entries(overrides).forEach(([word, sims]) => {
-      sims.forEach(sim => {
-        if (stops.includes(sim)) console.error
-          ('Stopword "' + sim + '" in overrides: ' + word + '->[' + sims + "]");
-        if (ignores.includes(sim)) console.error
-          ('Ignorable "' + sim + '" in overrides: ' + word + '->[' + sims + "]");
-      });
-    });
+    let num = Object.entries(validateOverrides(overrides)).length;
+
+    // generate cosimilars for the overrides
     let msg = '[DATA] Found ' + num + ' similar overrides, ';
     Object.entries(overrides).forEach(([word, sims]) =>
       generateCosimilars(word, sims, overrides)); // A: [B] -> B: [A]
     console.info(msg + Object.entries(overrides).length + ' co-similars');
+
     if (similarCache) {
       msg = `[SIMS] ${Object.keys(similarCache).length} pre-cached, `;
 
-      // generate the metaCache for use when no similars are found
-      enableMetaCache && Object.entries(similarCache).forEach(([word, sims]) =>
+      // generate the meta-cache for use when no similars are found
+      metaCacheEnabled && Object.entries(similarCache).forEach(([word, sims]) =>
         generateCosimilars(word, sims, metaCache, maxResults)); // A: [B] -> B: [A]
 
-      // add the overrides to similarCache
+      // add overrides (regular and meta) to similarCache
       Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
-
       console.info(msg + Object.entries(similarCache).length + ` total, `
         + `${Object.keys(metaCache).length} meta-entries`);
     }
@@ -69,7 +56,6 @@ this.onmessage = function (e) {
   eventHandlers[event](data, this);
 }
 
-
 function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
   let added = 0, add = function (word, map) {
     if (map.length < maxEntries && !map.includes(word) && isReplaceable(word)) {
@@ -88,7 +74,6 @@ function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
   });
   return added;
 }
-
 
 function findSimilars(idx, word, pos, state, timestamp) {
 
@@ -111,26 +96,35 @@ function findSimilars(idx, word, pos, state, timestamp) {
       && !cand.includes(word)
       && isReplaceable(cand, state));
 
-    if (result.length) {
-      let elapsed = Date.now() - timestamp;
-      similarCache[word] = result; // to cache
-      let newEntries = generateCosimilars(word, result, metaCache, maxResults);
-      console.log('[CACHE] (' + elapsed + 'ms) ' + word + '/' + pos
-        + '(' + result.length + '): ' + trunc(result) + ' [' + Object.keys(similarCache).length + '] '
-        + newEntries + '/' + Object.keys(metaCache).length + ' meta-entries');
+    if (!result || !result.length && metaCacheEnabled) {
+      console.warn('[SIMS] No similars for: "' + word + '"/' + pos + ' trying meta...');
+      result = metaCache[word];
+      console.warn('       Found: ', result);
+    }
+
+    if (result && result.length) {
+      let newEntries, msg = '', elapsed = Date.now() - timestamp;
+      similarCache[word] = result; // add result to cache
+
+      if (metaCacheEnabled) { // add cosimilars to meta-cache
+        newEntries = generateCosimilars(word, result, metaCache, maxResults);
+        msg = newEntries + '/' + Object.keys(metaCache).length + ' meta-entries';
+      }
+
+      if (0) console.log('[CACHE] (' + elapsed + 'ms) ' + word + '/' + pos + '('
+        + result.length + '): ' + trunc(result) + ' [' + Object.keys(similarCache).length + '] ' + msg);
     }
   }
 
-  if (!result || !result.length) {
+  if (!result || !result.length) { // no results
     result = [];
     let inSource = sources.rural[idx] === word
       || sources.urban[idx] === word && sources.pos[idx] === pos;
     findSimilars.sourceMisses = findSimilars.sourceMisses || new Set();
     if (inSource && !findSimilars.sourceMisses.has(word + '/' + pos)) {
       findSimilars.sourceMisses.add(word + '/' + pos)
-      console.warn('[WARN] No similars for: "' + word
-        + '"/' + pos + (inSource ? ' *** [In Source] '
-          + JSON.stringify(Array.from(findSimilars.sourceMisses)) : ''));
+      console.warn('[WARN] No similars for: "' + word + '"/' + pos + (inSource ?
+        ' *** [In Source] ' + JSON.stringify(Array.from(findSimilars.sourceMisses)) : ''));
     }
   }
 
@@ -159,6 +153,20 @@ function trunc(arr, len = 100) {
   return arr.substring(0, len) + '...';
 }
 
+function validateOverrides(data) {
+  let result = {};
+  Object.entries(data).forEach(([word, sims]) => {
+    sims.forEach(sim => {
+      if (stops.includes(sim)) console.error
+        ('Stopword "' + sim + '" in overrides: ' + word + '->[' + sims + "]");
+      else if (ignores.includes(sim)) console.error
+        ('Ignorable "' + sim + '" in overrides: ' + word + '->[' + sims + "]");
+      else result[word] = sims;
+    });
+  });
+  return result;
+}
+
 function shuffle(arr) {
   let newArray = arr.slice(),
     len = newArray.length,
@@ -169,4 +177,14 @@ function shuffle(arr) {
     newArray[p] = t;
   }
   return newArray;
+}
+
+function writeCache(cache, meta) {
+  try {
+    let fname = './' + (meta ? 'metacache' : 'simcache') + '-' + Date.now() + '.js';
+    require('fs').writeFileSync(fname, JSON.stringify(cache, 0, 2));
+    console.log('Writing: ' + fname + ' with ' + Object.entries(cache) + ' entries');
+  } catch (err) {
+    console.error(err);
+  }
 }

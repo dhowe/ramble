@@ -204,5 +204,3 @@ function getWordSpaceEm(lineEle) {
   let wordSpacingPx = window.getComputedStyle(lineEle).wordSpacing.replace('px', '');
   return parseFloat(wordSpacingPx) / initialMetrics.fontSize; // px => em
 }
-
-

@@ -446,9 +446,7 @@ function restore() {
     console.error('[WARN] Invalid-state, num-mods:'
       + numMods() + ' idx=' + id + '/' + word + ' history=', hist);
     let invalidWord = history[domain][id].pop();
-    console.error('[FIX] attempting to repair by popping "' + invalidWord + '" hist=', hist);
-    //displayWords.forEach((w, i) => console.log(i, w, JSON.stringify(history[domain][i])));
-    //return stop();
+    console.error('[FIX] repair by popping "' + invalidWord + '" hist=', hist);
   }
 
   if (updateState() && !state.stepMode) {
