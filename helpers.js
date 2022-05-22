@@ -10,10 +10,10 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
 
   measureCtx.font = font;
   if (isSafari) {
-        let fs = parseFloat((/\d+\.\d*px/.exec(font))[0].replace('px', ''));
-        safariWidthScaleRatio = fs / Math.round(fs);
+    let fs = parseFloat((/\d+\.\d*px/.exec(font))[0].replace('px', ''));
+    safariWidthScaleRatio = fs / Math.round(fs);
   }
-    
+
   let wordSpacePx = wordSpacing || 0;
   if (typeof wordSpacing === 'number') {
     wordSpacePx = wordSpacing * initialMetrics.fontSize;
@@ -72,9 +72,9 @@ const getInitialContentWidths = function (n, useCtx) {
 /*
   Computes the estimated change of width in percentage after a word change
   @return {
-      min: array[percentage, width] distance to target width with minimal word spacing,
-      max: array[percentage, width] distance to target width with max word spacing
-      opt: array[percentage, width, wsPx(num in px), wsEm] distance to target width after ws adjustment
+    min: [percentage, width] - distance to target width with min word spacing,
+    max: [percentage, width] - distance to target width with max word spacing
+    opt: [percentage, width, ws (in px), ws (in em)] - distance to target after ws adjustment (unused)
   }
 
   @param newWord: str, the word  to change to
@@ -82,8 +82,8 @@ const getInitialContentWidths = function (n, useCtx) {
   @param isShadow: boolean, true if using shadow text
   @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
 
-  @optimization if we measure new width with 'minWordSpace', we should be able to compute width 
-  with 'maxWordSpace', based on the numSpaces, without another measure call (possible future)
+  @optimisen if we measure new width with 'minWordSpace', we should be able to compute width 
+  with 'maxWordSpace', based on the numSpaces, without another measure call (possible futures)
 */
 const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 

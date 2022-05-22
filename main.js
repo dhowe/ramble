@@ -30,23 +30,37 @@ let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
 
 // these override lookup values
 let similarOverrides = {
-  avoid: ["elude", "escape", "evade"],
-  neighbors: ["brothers", "brethren", "fellows"],
-  rending: ["ripping", "cleaving", "rupturing", "splitting", "severing"],
-  inhuman: ["grievous", "grim", "hard", "heavy", "onerous", "oppressive", "rough", "rugged", "severe", "austere", "inclement", "intemperate"],
-  sometimes: ["occasionally", "intermittently", "periodically", "recurrently", "infrequently", "rarely", "irregularly", "sporadically", "variously"],
-  adventure: ["experience", "exploit", "occasion", "ordeal", "venture", "expedition", "mission"],
-  unfamiliar: ["unconventional", "pioneering", "unaccustomed", "unprecedented"],
-  coiled: ["twisted", "twisting", "curling", "curving", "serpentine", "corkscrewed", "jagged", "meandering", "spiraled"],
-  particularly: ["specifically", "generally", "aptly"],
-  unsettled: ["unresolved", "uncertain", "undecided", "rootless"],
-  dip: ["blip", "chip", "clip", "drip", "grip", "microchip", "quip", "roundtrip", "ship", "slip", "snip", "strip", "trip", "whip"],
-  set: ["caressed", "digressed", "forget", "progressed", "redressed", "regressed", "seat"],
-  sunset: ["dawning", "daybreak", "daylight", "morning", "sunrise", "sunup", "daytime", "forenoon", "dusk", "evening", "gloaming", "night", "nightfall", "sundown", "twilight", "subset", "inset", "alphabet", "mindset", "quintet"],
-  terror: ["error", "feather", "fear", "texture", "torture", "timbre", "desolation", "tincture"], // nn
-  violent: ["violet", "silent", "transparent", "sharp", "steep", "oblique", "towering"],// jj
-  sound: ["ground", "gesture", "vibration", "sense", "emotion", "thought"], // nn
-  might: ["could", "would", "should", "must"]
+  "adventure": ["inquiry", "hope", "heritage", "misadventure", "choice", "invention", "exploration", "reconciliation", "lust", "creation", "learning", "mourning"],
+  "animal": ["brute", "beastly", "brutal", "brutish", "bestial", "fleshy", "carnal", "corporeal", "somatic", "mental", "immaterial", "rational", "irrational", "minimal"],
+  "avoid": ["elude", "escape", "evade", "delay"],
+  "beyond": ["above", "outside", "before", "behind", /*"within"*/],
+  "building": ["assembling", "erecting", "constructing", "forming", "manufacturing", "producing", "casting", "composing", "contriving", "engineering", "fabricating", "framing", "modeling", "initiating", "formulating", "boosting", "developing", "improving", "strengthening", "amplifying", "increasing", "compounding", "escalating", "multiplying", "abridging", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding", "guiding", "glazing"],
+  "circadian": ["rhythmic", "regular", "circassian", "crepuscular", "orcadian", "circular", "cyclical"],
+  "coiled": ["twisted", "twisting", "bent", "broken", "serpentine", "corkscrewed", "jagged", "barbed"],
+  "desperately": ["badly", "dangerously", "fiercely", "greatly", "perilously", "seriously", "carelessly", "dramatically", "gravely", "hysterically", "fearfully", "hopelessly", "shockingly", "appallingly", "trivially", "temporally", "irreparably", "perfectly", "generally", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
+  "dip": ["swim", "clip", "drip", "quip", "trip", "slip", "snip", "strip", "whip", "bath", "submersion", "plunge", "shower", "rinse"],
+  "familiar": ["casual", "mundane", "recognizable", "intimate", "unfamiliar", "unknown", "obscure", "unusual", "similar", "familial", "filial", "crepuscular", "dusky", "quotidian", "peculiar"],
+  "inhuman": ["onerous", "oppressive", "human", "austere", "inclement", "intemperate", "otherwise"],
+  "marshaling": ["assembling", "mobilizing", "aligning", "arranging", "collecting", "conducting", "organizing", "guiding", "directing", "distributing", "gathering", "grouping", "leading", "ordering", "rallying", "dispersing", "disturbing", "dividing", "mixing", "neglecting", "scattering", "separating", "spreading", "determining", "encircling"],
+  "might": ["could", "would", "should", "must"],
+  "mildly": ["delicately", "indifferently", "lightly", "gently", "moderately", "quietly", "blandly", "calmly", "compassionately", "gingerly", "patiently", "softly", "tolerantly", "tenderly", "harshly", "roughly", "violently", "wildly", "fiercely", "ferociously", "brutally", "critically"],
+  "most": ["least", "mostly", "must"],
+  "neighbors": ["brothers", "sisters", "parents", "children", "horses", "elders"],
+  "particularly": ["specifically", "generally", "naturally", "often", "commonly"],
+  "rending": ["ripping", "cleaving", "rupturing", "splitting", "severing", "cutting"],
+  "set": ["digressed", "progressed", "sought", "stepped", "regressed", "transgressed"],
+  "simply": ["merely", "basically", /*"just"*/, "barely", "dimly", "finally", "definitively"],
+  "since": ["because", /*"whereas"*/, "hence", "although"],
+  "singular": ["particular", "exclusive", "solitary", "regular", "insular", "angular", "subtle", "silent"],
+  "sometimes": ["occasionally", "intermittently", "periodically", "infrequently", "rarely", "sporadically", "variously"],
+  "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
+  "sunset": ["dawn", "daybreak", "daylight", "sunrise", "sunup", "dusk", "night", "nightfall", "sundown", "twilight"],
+  "terror": ["fear", "texture", "torture", "timbre", "desolation"],
+  "unfamiliar": ["unconventional", "pioneering", "unprecedented", "bizarre", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
+  "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
+  "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
+  "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
+  "will": ["would", "must", "since", "again", "finally", "ultimately"]
 };
 
 // words considered un-replaceable
@@ -75,10 +89,7 @@ let state = {
   updating: false,
   minWordLength,
   loopId: 0,
-  legs: 0,
-  ignores,
-  sources,
-  stops,
+  legs: 0
 };
 
 let lex = RiTa.lexicon();
@@ -102,13 +113,14 @@ let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = false;
+let radius = displayBounds.width / 2, dbug = true;
 
 if (dbug) {
-  highlightWs = true;
+  //highlightWs = true;
   logging = true;
-  verbose = true;
+  //verbose = true;
   readDelay = 1;
+  updateDelay = 100;
 }
 
 doLayout();
@@ -281,7 +293,8 @@ function ramble() {
 
     if (!worker) {
       worker = new Worker("similars.js");
-      worker.postMessage({ event: 'init', data: { overrides: similarOverrides } })
+      let data = { overrides: similarOverrides, stops, ignores, sources };
+      worker.postMessage({ event: 'init', data })
       worker.onmessage = postReplace;
     }
 

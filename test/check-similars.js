@@ -99,13 +99,15 @@ function lookupWord(word, pos, forcePos = 0) {
   }
 
   if (typeof idx === 'undefined') {
-    console.log('remove ' + word + '/' + pos);
+    console.log('no idx for ' + word + '/' + pos);
     return;
   }
 
   if (!forcePos && (pos && pos !== sources.pos[idx])) {
     throw Error(word + " '" + pos + '\'!=\'' + sources.pos[idx] + "'");
   }
+
+  pos = pos || sources.pos[idx];
 
   let sims = findSimilars(idx, word, pos, state);
   let csims = findSimilars(idx, counter, pos, state);
@@ -120,6 +122,6 @@ function lookupWord(word, pos, forcePos = 0) {
 
 }
 
-console.log(RiTa.untokenize(sources.rural));
+//console.log(RiTa.untokenize(sources.rural));
 //console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
-lookupWord('coiled', 'jj', true);
+lookupWord('will');//, 'jj', true);
