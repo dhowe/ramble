@@ -217,11 +217,11 @@ const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
 const measureWidth = function (text, fontSizePx = 12, fontName = fontFamily, wordSpacing = 0) {
   // caculation in scale=1, not current scale
   measureCtx.font = fontSizePx + 'px ' + fontName;
-  if (measureCtx.font !== fontSizePx + 'px ' + fontName) {
+  if (isSafari) {
     safariWidthScaleRatio = fontSizePx / Math.round(fontSizePx);
   }
   let spaceCount = text ? (text.split(" ").length - 1) : 0;
-  return (measureCtx.measureText(text).width + (spaceCount * (wordSpacing * fontSizePx))) * safariWidthScaleRatio;
+  return (measureCtx.measureText(text).width + (spaceCount * (wordSpacing * fontSizePx))) * (isSafari ? safariWidthScaleRatio : 1);
 }
 
 const chordLength = function (rad, dis) {

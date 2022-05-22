@@ -9,7 +9,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   if (typeof font !== 'string') throw Error('font must be string');
 
   measureCtx.font = font;
-  if (measureCtx.font !== font) {
+  if (isSafari) {
         let fs = parseFloat((/\d+\.\d*px/.exec(font))[0].replace('px', ''));
         safariWidthScaleRatio = fs / Math.round(fs);
   }
@@ -34,7 +34,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   let width = measureCtx.measureText(text).width;
   let numSpaces = text.split(' ').length - 1;
 
-  return (width + (numSpaces * wordSpacePx)) * safariWidthScaleRatio;
+  return (width + (numSpaces * wordSpacePx)) * (isSafari ? safariWidthScaleRatio : 1);
 }
 
 /*
