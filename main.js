@@ -56,7 +56,7 @@ let similarOverrides = {
 let stops = ["also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
-let ignores = ["leding", "expecteds" /* adde by JHC, hasWord == true in RiTa */, "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
+let ignores = ["leding", "expecteds", "reporteds" /* adde by JHC, hasWord == true in RiTa */, "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
 
 // set true to generate a new cache file
 let refreshCache = false;
