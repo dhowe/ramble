@@ -246,6 +246,7 @@ function doLayout() {
 
   // layout lines in circular display
   let initRadius = Math.max(radius, 450);
+  if (initRadius > 450) padding = padding * (initRadius/450);
   let offset = { x: displayBounds.x + initRadius, y: displayBounds.y + initRadius };
   let opts = { offset, fontFamily, lineHeightScale, wordSpace: initialWordSpace, padding };
   let lines = layoutCircularLines(sources[state.domain], initRadius, opts);
