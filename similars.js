@@ -4,19 +4,22 @@ importScripts('cache.js');
 
 let maxResults = 20;
 let lex = RiTa.lexicon();
+let enableMetaCache = true;
 let similarCache = {};//typeof cache !== 'undefined' ? cache : {};
-let metaCache = {};
-let overrides, stops, ignores, sources;
+let metaCache = {}, overrides, stops, ignores, sources;
 
 const eventHandlers = {
 
   init: function (data) {
+    
+    minWordLength = data.minWordLength;
     overrides = data.overrides;
     ignores = data.ignores;
     sources = data.sources;
     stops = data.stops;
 
     let num = Object.entries(overrides).length;
+    // validate the overrides
     Object.entries(overrides).forEach(([word, sims]) => {
       sims.forEach(sim => {
         if (stops.includes(sim)) console.error
@@ -33,9 +36,8 @@ const eventHandlers = {
       msg = `[SIMS] ${Object.keys(similarCache).length} pre-cached, `;
 
       // generate the metaCache for use when no similars are found
-      Object.entries(similarCache).forEach(([word, sims]) => {
-        generateCosimilars(word, sims, metaCache, maxResults)
-      }); // A: [B] -> B: [A]
+      enableMetaCache && Object.entries(similarCache).forEach(([word, sims]) =>
+        generateCosimilars(word, sims, metaCache, maxResults)); // A: [B] -> B: [A]
 
       // add the overrides to similarCache
       Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
@@ -70,7 +72,7 @@ this.onmessage = function (e) {
 
 function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
   let added = 0, add = function (word, map) {
-    if (map.length < maxEntries && !map.includes(word)) {
+    if (map.length < maxEntries && !map.includes(word) && isReplaceable(word)) {
       map.push(word);
       added++;
     }
@@ -142,7 +144,6 @@ function randomSubset(sims) {
 }
 
 function isReplaceable(word, state) {
-  let { minWordLength } = state;
   let res = (word.length >= minWordLength || word in overrides)
     && !stops.includes(word);
   //console.log(word, res);

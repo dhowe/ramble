@@ -87,7 +87,6 @@ let state = {
   outgoing: true,
   stepMode: false,
   updating: false,
-  minWordLength,
   loopId: 0,
   legs: 0
 };
@@ -293,7 +292,7 @@ function ramble() {
 
     if (!worker) {
       worker = new Worker("similars.js");
-      let data = { overrides: similarOverrides, stops, ignores, sources };
+      let data = { overrides: similarOverrides, stops, ignores, sources, minWordLength };
       worker.postMessage({ event: 'init', data })
       worker.onmessage = postReplace;
     }
