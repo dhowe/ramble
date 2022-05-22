@@ -99,6 +99,9 @@ let measureCanvas = document.querySelector("#measure-ctx");
 let displayBounds = domDisplay.getBoundingClientRect();
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
+measureCtx.font = "21.8px Source Serif Pro"
+let isSafari = measureCtx.font !== "21.8px Source Serif Pro";
+let safariWidthScaleRatio = 1;
 
 let wordLineMap = { word2Line: [], line2Word: [] };
 let reader, worker, spans, initialMetrics, scaleRatio;
@@ -578,7 +581,12 @@ function scaleToFit() {
     .getBoundingClientRect();
 
   // update measure ctx
-  measureCtx.font = window.getComputedStyle(document.getElementById("l0")).font;
+  let computedStyle = window.getComputedStyle(document.getElementById("l0"))
+  measureCtx.font = computedStyle.font;
+  if (isSafari) {
+    let computedFontSize = parseFloat(computedStyle.fontStyle.replace("px", ""));
+    safariWidthScaleRatio = computedFontSize / Math.round(computedFontSize);
+  }
   log(`opts { scale: ${scaleRatio.toFixed(2)} font: ${measureCtx.font.replace(/,.*/, '')} }`);
   //console.log(measureCtx.font);
 }
