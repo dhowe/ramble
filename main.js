@@ -99,8 +99,8 @@ let measureCanvas = document.querySelector("#measure-ctx");
 let displayBounds = domDisplay.getBoundingClientRect();
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
-measureCtx.font = "21.8px Source Serif Pro"
-let isSafari = measureCtx.font !== "21.8px Source Serif Pro";
+measureCtx.font = '21.8px "Source Serif Pro"'
+let isSafari = measureCtx.font !== '21.8px "Source Serif Pro"';
 let safariWidthScaleRatio = 1;
 
 let wordLineMap = { word2Line: [], line2Word: [] };
