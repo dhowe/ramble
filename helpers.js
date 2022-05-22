@@ -9,7 +9,11 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   if (typeof font !== 'string') throw Error('font must be string');
 
   measureCtx.font = font;
-
+  if (measureCtx.font !== font) {
+        let fs = parseFloat((/\d+\.\d*px/.exec(font))[0].replace('px', ''));
+        safariWidthScaleRatio = fs / Math.round(fs);
+  }
+    
   let wordSpacePx = wordSpacing || 0;
   if (typeof wordSpacing === 'number') {
     wordSpacePx = wordSpacing * initialMetrics.fontSize;
@@ -30,7 +34,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   let width = measureCtx.measureText(text).width;
   let numSpaces = text.split(' ').length - 1;
 
-  return width + (numSpaces * wordSpacePx);
+  return (width + (numSpaces * wordSpacePx)) * safariWidthScaleRatio;
 }
 
 /*
@@ -50,7 +54,7 @@ const getLineWidth = function (line, wordSpacing = undefined) {
   return width;
 }
 
-const getInitialContentWidths = function (n, useCtx) { // unused
+const getInitialContentWidths = function (n, useCtx) {
   let r = [];
   for (let i = 0; i < n; i++) {
     const lineEle = document.getElementById("l" + i);
@@ -68,9 +72,9 @@ const getInitialContentWidths = function (n, useCtx) { // unused
 /*
   Computes the estimated change of width in percentage after a word change
   @return {
-      min: [percentage, width] - distance to target width with min word spacing,
-      max: [percentage, width] - distance to target width with max word spacing
-      opt: [percentage, width, ws (in px), ws (in em)] - distance to target after ws adjustment (unused)
+      min: array[percentage, width] distance to target width with minimal word spacing,
+      max: array[percentage, width] distance to target width with max word spacing
+      opt: array[percentage, width, wsPx(num in px), wsEm] distance to target width after ws adjustment
   }
 
   @param newWord: str, the word  to change to
@@ -78,8 +82,8 @@ const getInitialContentWidths = function (n, useCtx) { // unused
   @param isShadow: boolean, true if using shadow text
   @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
 
-  @optimise if we measure new width with 'minWordSpace', we should be able to compute width 
-  with 'maxWordSpace', based on the numSpaces, without another measure call (possible-futures)
+  @optimization if we measure new width with 'minWordSpace', we should be able to compute width 
+  with 'maxWordSpace', based on the numSpaces, without another measure call (possible future)
 */
 const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
 
@@ -107,30 +111,24 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
   }
 
   if (fields.includes('opt')) {
-    if (isShadow) throw Error('\'opt\' field not available for shadow text');
+    if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
-
     let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
     let direction = currentWidth >= targetWidth ? -1 : 1;
-    let bound1 = currentWsPx;
+    let bound1 = currentWsPx, bound2, w1;
     while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
       bound1 += step * direction;
       currentWidth = measureWidthCtx(newText, style.font, bound1 + "px");
     }
 
-    let w1 = currentWidth;
-    let bound2 = bound1 - (step * direction);
+    w1 = currentWidth;
+    bound2 = bound1 - (step * direction);
     currentWidth = measureWidthCtx(newText, style.font, bound2 + "px");
 
-    let diff = Math.abs(currentWidth - targetWidth);
-    let finalWidth = Math.abs(w1 - targetWidth) >= diff ? currentWidth : w1;
-    let finalWs = Math.abs(w1 - targetWidth) >= diff ? bound2 : bound1;
-    
-    result.opt = [
-      ((finalWidth - targetWidth) / finalWidth) * 100,
-      finalWidth, finalWs, finalWs / initialMetrics.fontSize
-    ];
+    let finalWidth = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? currentWidth : w1;
+    let finalWs = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? bound2 : bound1;
+    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100, finalWidth, finalWs, finalWs / initialMetrics.fontSize]
   }
 
   return result;

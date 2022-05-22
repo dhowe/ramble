@@ -20,8 +20,7 @@ const layoutCircularLines = function (words, radius, opts = {}) {
 
   let wordSpace = opts.wordSpace || 0;
   let fontFamily = opts.fontFamily || 'times';
-  let fontSize = radius / 4, result;
-
+  let fontSize = parseFloat((radius / 4).toFixed(1)), result;
   do {
     fontSize -= 0.1;
     let leading = fontSize * lineHeightScale;
@@ -58,7 +57,7 @@ const createCircularDOM = function (target, initialRadius, lines) {
   lines.forEach((line, lineIdx) => {
     let lineDiv = document.createElement("div");
     lineDiv.classList.add("line");
-    lineDiv.style.fontSize = (line.fontSize || fontSize) + "px";
+    lineDiv.style.fontSize = (line.fontSize || fontSize).toFixed(1) + "px";
     lineDiv.style.fontFamily = line.fontFamily || 'sans-serif';
     lineDiv.style.wordSpacing = line.wordSpacing + "em";
     lineDiv.style.top = (line.bounds[1] - line.bounds[3] / 2) + "px";
@@ -141,7 +140,7 @@ const adjustWordSpace = function (lineEle, targetWidth, opts) {
   if (finalWs <= minWordSpace) hitMin = true;
   if (finalWs >= maxWordSpace) hitMax = true;
 
-  lineEle.style.wordSpacing = finalWs + "em";
+  lineEle.style.wordSpacing = finalWs.toFixed(2) + "em";
 
   if (highlightWs && lineEle.firstChild && (hitMin || hitMax)) { // debugging
     if (hitMax) {
@@ -218,8 +217,11 @@ const fitToBox = function (words, maxWidth, fontSize, fontName, wordSpacing) {
 const measureWidth = function (text, fontSizePx = 12, fontName = fontFamily, wordSpacing = 0) {
   // caculation in scale=1, not current scale
   measureCtx.font = fontSizePx + 'px ' + fontName;
+  if (measureCtx.font !== fontSizePx + 'px ' + fontName) {
+    safariWidthScaleRatio = fontSizePx / Math.round(fontSizePx);
+  }
   let spaceCount = text ? (text.split(" ").length - 1) : 0;
-  return measureCtx.measureText(text).width + (spaceCount * (wordSpacing * fontSizePx));
+  return (measureCtx.measureText(text).width + (spaceCount * (wordSpacing * fontSizePx))) * safariWidthScaleRatio;
 }
 
 const chordLength = function (rad, dis) {
