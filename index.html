@@ -3,15 +3,20 @@
 
 <head>
   <title>Preoccupations</title>
-  <link rel="preload" href="./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff" as="font" type="font/woff" crossorigin>
-  <link rel="preload" href="./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff" as="font" type="font/woff"
+    crossorigin>
+  <link rel="preload" href="./fonts/Source_Serif_Pro/source-serif-pro-v15-latin-regular.woff2" as="font"
+    type="font/woff2" crossorigin>
 
   <script src="lib/rita.js"></script>
   <script>
+    // production or development tag
+    let production = location.hostname === 'rednoise.org';
+    let tag = production ? '(prod)' : '(dev)';
     // Load/display the app version number
     fetch('package.json').then(res => res.json())
-      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} (${location.hostname})`))
-      .catch(e => console.log('[WARN] No Version', e));
+      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
+      .catch(e => console.log('[WARN] No Version!', e));
   </script>
   <script src="lib/progressbar.js"></script>
   <link rel="stylesheet" href="style.css">
@@ -19,8 +24,9 @@
   <meta name="description" content="'Preoccupations' by John Cayley & Daniel Howe">
   <meta name="application-name" content="Preoccupations">
   <meta name="author" content="John Cayley & Daniel Howe">
-  <meta name="robots" content="index, follow, noodp, noydir" />   
-  <meta name="keywords" content="preoccupations, howe, cayley, generative art, digital literature, eletronic literature, e-lit">
+  <meta name="robots" content="index, follow, noodp, noydir" />
+  <meta name="keywords"
+    content="preoccupations, howe, cayley, generative art, digital literature, eletronic literature, e-lit">
 </head>
 
 <body>

@@ -23,7 +23,14 @@ function keyhandler(e) {
     let curr = window.getComputedStyle(domStats);
     domStats.style.display = curr.display === 'block' ? 'none' : 'block';
   }
-  else if (e.code === 'KeyL') {
+  else if (e.code === 'KeyD') {
+    reader.unpauseThen(update);
+    console.log('[KEYB] skip-delay');
+  }
+
+  if (production) return; // only I/D keys for prod
+
+  if (e.code === 'KeyL') {
     logging = !logging;
     console.log('[KEYB] logging: ' + logging);
   }
