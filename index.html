@@ -13,6 +13,10 @@
     // production or development tag
     let production = location.hostname === 'rednoise.org';
     let tag = production ? '(prod)' : '(dev)';
+    
+    // kiosk or regular
+    let kiosk = new URLSearchParams(window.location.search).has('kiosk');
+    
     // Load/display the app version number
     fetch('package.json').then(res => res.json())
       .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))

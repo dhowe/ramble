@@ -250,7 +250,7 @@ function doLayout() {
 
   // layout lines in circular display
   let initRadius = Math.max(radius, 450);
-  if (initRadius > 450) padding = padding * (initRadius/450);
+  if (initRadius > 450) padding = padding * (initRadius / 450);
   let offset = { x: displayBounds.x + initRadius, y: displayBounds.y + initRadius };
   let opts = { offset, fontFamily, lineHeightScale, wordSpace: initialWordSpace, padding };
   let lines = layoutCircularLines(sources[state.domain], initRadius, opts);
@@ -289,7 +289,7 @@ function ramble() {
 
   if (!reader) { // first time
 
-    log(`opts { read: ${readDelay}ms, update: ${updateDelay}ms }`);
+    log(`opts { kiosk: ${kiosk}, read: ${readDelay}ms, update: ${updateDelay}ms }`);
 
     if (!worker) {
       worker = new Worker("similars.js");
@@ -303,7 +303,7 @@ function ramble() {
 
     // create/start the reader
     reader = new Reader(spans);
-    reader.pauseThen(update, readDelay); // first-time
+    reader.pauseThen(update, readDelay);
     reader.start();
   }
 
@@ -593,8 +593,14 @@ function scaleToFit() {
     let computedFontSize = parseFloat(computedStyle.fontStyle.replace("px", ""));
     safariWidthScaleRatio = computedFontSize / Math.round(computedFontSize);
   }
-  log(`opts { scale: ${scaleRatio.toFixed(2)} font: ${measureCtx.font.replace(/,.*/, '')} }`);
-  //console.log(measureCtx.font);
+
+  if (kiosk) {
+    toggleLegend(false); // show legend (no ?) if kiosked
+    document.querySelector("#about-button").style.display = 'none';
+    document.querySelector("#icon-wrapper").style.display = 'none';
+  }
+
+  log(`opts { scale: ${scaleRatio.toFixed(2)}, font: ${measureCtx.font.replace(/,.*/, '')} }`);
 }
 
 function trunc(arr, len = 100) {
