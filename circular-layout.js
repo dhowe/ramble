@@ -98,6 +98,7 @@ const createCircularDOM = function (target, initialRadius, lines) {
   };
 
   domLegend = createLegend(initialMetrics);
+  threeBarIcon = createIcon(initialMetrics);
 
   return initialMetrics;
 }

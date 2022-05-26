@@ -138,7 +138,13 @@ function createLegend(metrics) {
   </svg> <span> shared</span></div>
   <div><svg class="overlap-legend">
   <rect style="fill: ${visBandColors[3]}" id="box" x="0" y="0" width="20" height="20"/>
-  </svg> <span> found<span></div>`;
+  </svg> <span> found<span></div>
+  <div> <div id="about-button">
+  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 50 50">
+  <circle cx="25" cy="25" r = "25" fill="#e6e6e6" />
+  <text x="25" y="25" text-anchor="middle" fill="#B3B3B3" font-size="2em" dy=".4em">?</text>
+  </svg>
+  </button></div>`;
 
   if (hideLegend) {
     legendContent.classList.add('hidden-legend')
@@ -151,6 +157,28 @@ function createLegend(metrics) {
   document.querySelector("#legend-container").append(domLegend);
 
   return domLegend;
+}
+
+function createIcon(metrics) {
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
+  <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
+  <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
+  </svg>`
+  let domIcon = document.createElement("div");
+  domIcon.id = "three-bar-icon";
+  domIcon.style.width = metrics.radius * 2 + "px"
+  domIcon.style.height = metrics.radius * 2 + "px"
+  let iconWrapper = document.createElement("div");
+  iconWrapper.id = "icon-wrapper";
+  iconWrapper.innerHTML = iconSVG;
+  iconWrapper.addEventListener("click", () => {
+    document.getElementsByClassName("hidden-legend")[0].classList.toggle("hidden-legend-v");
+  })
+  domIcon.append(iconWrapper);
+  domIcon.style.display = "none";
+  document.getElementById("icon-container").append(domIcon);
+  return domIcon;
 }
 
 // Downloads data to a local file (tmp)
