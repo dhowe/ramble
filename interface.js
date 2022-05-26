@@ -66,10 +66,6 @@ function keyhandler(e) {
     }
     console.log('[KEYB] stepMode: ' + state.stepMode);
   }
-  else if (e.code === 'KeyD') {
-    reader.unpauseThen(update);
-    console.log('[KEYB] skip-delay');
-  }
   else if (e.code === 'KeyC') {
     toggleLegend();
     console.log('[KEYB] color-map')

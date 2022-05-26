@@ -49,8 +49,8 @@ let similarOverrides = {
   "particularly": ["specifically", "generally", "naturally", "often", "commonly"],
   "rending": ["ripping", "cleaving", "rupturing", "splitting", "severing", "cutting"],
   "set": ["digressed", "progressed", "sought", "stepped", "regressed", "transgressed"],
-  "simply": ["merely", "basically", /*"just"*/, "barely", "dimly", "finally", "definitively"],
-  "since": ["because", /*"whereas"*/, "hence", "although"],
+  "simply": ["merely", "basically", /*"just",*/ "barely", "dimly", "finally", "definitively"],
+  "since": ["because", /*"whereas",*/ "hence", "although"],
   "singular": ["particular", "exclusive", "solitary", "regular", "insular", "angular", "subtle", "silent"],
   "sometimes": ["occasionally", "intermittently", "periodically", "infrequently", "rarely", "sporadically", "variously"],
   "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
@@ -112,11 +112,11 @@ let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = false;
+let radius = displayBounds.width / 2, dbug = 1;
 
 if (dbug) {
   //highlightWs = true;
-  logging = true;
+  //logging = true;
   //verbose = true;
   readDelay = 1;
   updateDelay = 100;
@@ -369,7 +369,7 @@ function postReplace(e) {
   let { idx, dword, sword, dsims, ssims, timestamp } = e.data;
   let { domain, stepMode } = state;
 
-  if (idx < 0) { return; }// TODO: write cache here
+  if (idx < 0) return writeCache(e.data); // write cache here
 
   let shadow = shadowTextName();
   let delayMs, pos = sources.pos[idx];
@@ -478,17 +478,28 @@ function stop() {
 
   updateInfo();
 
-  worker && worker.postMessage({ event: 'getcache', data: {} });
+  worker && worker.postMessage({ event: 'getcache', data: { repids } });
 }
 
-function postStop(args) {
-  let { cache } = args;
+function writeCache(args) {
+  let { cache, metaCache } = args;
+  let diffs = strictReplaceables().length;
+  let hits = 0, count =  diffs + repids.length;
+  repids.forEach(idx => {
+    if (sources.urban[idx] in cache) hits++;
+    let rural = sources.rural[idx];
+    if (sources.urban[idx] !== rural && rural in cache) hits++;
+  });
+  let size = Object.keys(cache).length;
+  let msize = Object.keys(metaCache).length;
+  console.log(`[INFO] found ${repids.length} ids, ${count} original words`);
+  console.log(`[INFO] found ${hits}/${count} in cache, with ${size} entries, ${msize} meta`);
+
   if (refreshCache) { //  download cache file on stop()
-    let size = Object.keys(cache).length;
+    let fname = `cache-${hits}.${count}.${size}.js`;
     let data = `let cache=${JSON.stringify(cache, 0, 2)};`
-    // data += `\nlet htmlSpans='${cachedHtml}';\n`;
-    download(data, `cache-${size}.js`, 'text');
-    console.log(`[INFO] wrote cache-${size}.js`);
+    download(data, fname, 'text');
+    console.log(`[INFO] wrote ${fname}`);
   }
 }
 
@@ -595,12 +606,13 @@ function scaleToFit() {
   }
 
   if (kiosk) {
-    toggleLegend(false); // show legend (no ?) if kiosked
+    toggleLegend(false); // show legend (no '?', no bars) if kiosked
     document.querySelector("#about-button").style.display = 'none';
     document.querySelector("#icon-wrapper").style.display = 'none';
   }
 
-  log(`opts { scale: ${scaleRatio.toFixed(2)}, font: ${measureCtx.font.replace(/,.*/, '')} }`);
+  log(`opts { scale: ${scaleRatio.toFixed(2)}, `
+    + `font: ${measureCtx.font.replace(/,.*/, '')} }`);
 }
 
 function trunc(arr, len = 100) {

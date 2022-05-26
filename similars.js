@@ -4,7 +4,7 @@ importScripts('cache.js');
 
 let maxResults = 20;
 let metaCacheEnabled = true;
-let similarCache = {};//typeof cache !== 'undefined' ? cache : {};
+let similarCache = typeof cache !== 'undefined' ? cache : {};
 let metaCache = {}, overrides, stops, ignores, sources;
 
 const eventHandlers = {
@@ -17,29 +17,28 @@ const eventHandlers = {
     // generate cosimilars for the overrides
     let msg = '[DATA] Found ' + num + ' similar overrides, ';
     Object.entries(overrides).forEach(([word, sims]) =>
-      generateCosimilars(word, sims, overrides)); // A: [B] -> B: [A]
-    console.info(msg + Object.entries(overrides).length + ' co-similars');
+      generateCosimilars(word, sims, metaCache)); // A: [B] -> B: [A]
+    msg += 'added ' + Object.entries(metaCache).length + ' co-similars';
+    console.info(msg);
 
-    if (similarCache) {
-      msg = `[SIMS] ${Object.keys(similarCache).length} pre-cached, `;
+    msg = `[SIMS] ${Object.keys(similarCache).length} pre-cached, `;
 
+    if (Object.keys(similarCache).length) {
       // generate the meta-cache for use when no similars are found
       metaCacheEnabled && Object.entries(similarCache).forEach(([word, sims]) =>
         generateCosimilars(word, sims, metaCache, maxResults)); // A: [B] -> B: [A]
+    }
 
-      // add overrides (regular and meta) to similarCache
-      Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
-      console.info(msg + Object.entries(similarCache).length + ` total, `
-        + `${Object.keys(metaCache).length} meta-entries`);
-    }
-    else {
-      console.info('[DATA] No cache, doing live lookups');
-    }
+    // add overrides (regular and meta) to similarCache
+    Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
+
+    console.info(msg + Object.entries(similarCache).length + ` total, `
+      + `${Object.keys(metaCache).length} meta-entries`);
   },
 
   getcache: function (data, worker) {
     const cache = similarCache;
-    worker.postMessage({ idx: -1, dsims: 0, ssims: 0, cache });
+    worker.postMessage({ idx: -1, cache, metaCache });
   },
 
   lookup: function (data, worker) {
@@ -77,7 +76,9 @@ function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
 
 function findSimilars(idx, word, pos, state, timestamp) {
 
-  let result;
+  // WORKING HERE: rethink
+  
+  let metaCacheHit = false, result;
   if (word in similarCache) {
     result = randomSubset(similarCache[word]);
   }
@@ -96,14 +97,22 @@ function findSimilars(idx, word, pos, state, timestamp) {
       && !cand.includes(word)
       && isReplaceable(cand, state));
 
-    if (!result || !result.length && metaCacheEnabled) {
-      console.warn('[SIMS] No similars for: "' + word + '"/' + pos + ' trying meta...');
-      result = metaCache[word];
-      console.warn('       Found: ', result);
+    if (!result || !result.length) {
+      console.warn('[SIMS] No similars for: "' + word + '"/' + pos);
+      if (metaCacheEnabled) {
+        result = metaCache[word];
+        console.warn('[META] Trying meta, found: ', result);
+        if (result && result.length) {
+          metaCacheHit = true;
+        }
+      }
     }
+  }
 
-    if (result && result.length) {
-      let newEntries, msg = '', elapsed = Date.now() - timestamp;
+  if (result && result.length) { // got something 
+
+    let newEntries, msg = '', elapsed = Date.now() - timestamp;
+    if (!metaCacheHit) {
       similarCache[word] = result; // add result to cache
 
       if (metaCacheEnabled) { // add cosimilars to meta-cache
@@ -111,12 +120,12 @@ function findSimilars(idx, word, pos, state, timestamp) {
         msg = newEntries + '/' + Object.keys(metaCache).length + ' meta-entries';
       }
 
-      if (0) console.log('[CACHE] (' + elapsed + 'ms) ' + word + '/' + pos + '('
-        + result.length + '): ' + trunc(result) + ' [' + Object.keys(similarCache).length + '] ' + msg);
+      console.log('[CACHE] (' + elapsed + 'ms) ' + word
+        + '/' + pos + '(' + result.length + '): ' + trunc(result)
+        + ' [' + Object.keys(similarCache).length + '] ' + msg);
     }
   }
-
-  if (!result || !result.length) { // no results
+  else {                // no results
     result = [];
     let inSource = sources.rural[idx] === word
       || sources.urban[idx] === word && sources.pos[idx] === pos;
@@ -126,8 +135,8 @@ function findSimilars(idx, word, pos, state, timestamp) {
       console.warn('[WARN] No similars for: "' + word + '"/' + pos + (inSource ?
         ' *** [In Source] ' + JSON.stringify(Array.from(findSimilars.sourceMisses)) : ''));
     }
-  }
 
+  }
   return result;
 }
 
@@ -137,7 +146,7 @@ function randomSubset(sims) {
     shuffle(sims).slice(0, Math.min(maxResults, sims.length));
 }
 
-function isReplaceable(word, state) {
+function isReplaceable(word) {
   let res = (word.length >= minWordLength || word in overrides)
     && !stops.includes(word);
   //console.log(word, res);
@@ -179,12 +188,3 @@ function shuffle(arr) {
   return newArray;
 }
 
-function writeCache(cache, meta) {
-  try {
-    let fname = './' + (meta ? 'metacache' : 'simcache') + '-' + Date.now() + '.js';
-    require('fs').writeFileSync(fname, JSON.stringify(cache, 0, 2));
-    console.log('Writing: ' + fname + ' with ' + Object.entries(cache) + ' entries');
-  } catch (err) {
-    console.error(err);
-  }
-}
