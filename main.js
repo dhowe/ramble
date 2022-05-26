@@ -568,6 +568,7 @@ function update(updating = true) {
   state.updating = updating;
   state.maxLegs = walks.short;
   domLegend.style.display = 'block';
+  threeBarIcon.style.display = 'block';
   ramble();
 }
 
@@ -575,6 +576,7 @@ function scaleToFit() {
   scaleRatio = radius / initialMetrics.radius;
   initialMetrics.textDisplay.style.transform = "scale(" + scaleRatio + ")";
   domLegend.style.transform = "scale(" + scaleRatio + ")";
+  threeBarIcon.style.transform = "scale(" + scaleRatio + ")";
   document.querySelectorAll(".progress").forEach((p, i) => {
     updateProgressBar(p, i, progressBarsBaseMatrix, scaleRatio);
   });

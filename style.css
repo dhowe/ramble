@@ -230,6 +230,26 @@ body {
   user-select: none;
 }
 
+#three-bar-icon{
+  position: absolute;
+  transform-origin: top left;
+  -webkit-transform-origin: top left;
+  -moz-transform-origin: top left;
+  user-select: none;
+}
+
+#icon-wrapper{
+  color: #B3B3B3;
+  position: fixed;
+  bottom: 102.6%;
+  left: 0;
+  cursor: pointer;
+}
+
+#icon-wrapper :hover{
+  color: #777777;
+}
+
 #legend-container {
   aspect-ratio: 1;
   min-width: 0;
@@ -240,6 +260,16 @@ body {
   position: absolute;
   font-family: "Source Serif Pro";
   vertical-align: middle;
+}
+
+#icon-container {
+  aspect-ratio: 1;
+  min-width: 0;
+  z-index: 6;
+  height: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
 }
 
 .legend-content {
@@ -276,13 +306,13 @@ body {
   -o-transition: opacity 0.3s ease-in-out;
   -ms-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
-  padding-left: 500%;
+  /* padding-left: 500%;
   padding-right: 500%;
   margin-left: -500%;
-  margin-right: -500%;
+  margin-right: -500%; */
 }
 
-.hidden-legend:hover {
+.hidden-legend-v {
   -webkit-transition: opacity 0.3s ease-in-out;
   -moz-transition: opacity 0.3s ease-in-out;
   -o-transition: opacity 0.3s ease-in-out;
@@ -302,4 +332,21 @@ body {
 
 .hide-cursor {
   cursor: none;
+}
+
+#about-button {
+  width: 25px;
+  height: 25px;
+  top: 27.5px;
+  display: inline-block;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer; 
+  margin: 0;
+  padding: 0;
+}
+
+#about-button svg {
+  margin: 0;
+  padding: 0;
 }
