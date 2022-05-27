@@ -244,6 +244,11 @@ body {
   bottom: 102.6%;
   left: 0;
   cursor: pointer;
+  height: 5%;
+}
+
+#icon-wrapper svg{
+  margin: 15px 0 0 0;
 }
 
 #icon-wrapper :hover{
@@ -350,3 +355,7 @@ body {
   margin: 0;
   padding: 0;
 }
+/* 
+@-ms-viewport{
+  width: device-width;
+} */
