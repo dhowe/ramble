@@ -3,11 +3,12 @@ importScripts('lib/rita.js');
 importScripts('cache.js');
 
 let maxResults = 20, logCacheEntries = true, useMeta = true;
-let similarCache = typeof cache !== 'undefined' ? cache : {};
-let metaCache = {}, overrides, stops, ignores, sources, finished;
+//let similarCache = typeof cache !== 'undefined' ? cache : {}, metaCache = {},
+let overrides, stops, ignores, sources, finished;
+let metaLRU, similarLRU, metaCacheSize = 10000, simCacheSize = 5000;
 
 // main-cache: holds word actually searched (A: [B,C])
-// meta-cache: holds cosimilars (B: [A,C], C: [A,B])
+// meta-cache: holds co-similars (B: [A,C], C: [A,B])
 
 const eventHandlers = {
 
@@ -15,34 +16,43 @@ const eventHandlers = {
     ({ minWordLength, overrides, ignores, sources, stops } = data);
 
     let numOverrides = Object.entries(validateOverrides(overrides)).length;
-    let initialCacheSize = Object.entries(similarCache).length;
+    let initialCacheSize = typeof cache !== 'undefined' ? Object.keys(cache).length : 0;
+//    let initialCacheSize = Object.entries(similarCache).length;
 
     // add each override to similarCache
-    Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
+    Object.entries(overrides).forEach(([word, sims]) => cache[word] = sims);
+
+    metaLRU = new LRUCache(metaCacheSize);
 
     // generate co-similars in meta for overrides
     let msg = '[INFO] Found ' + numOverrides + ' similar overrides, ';
-    Object.entries(overrides).forEach(([word, sims]) =>
-      generateCosimilars(word, sims, metaCache));
-    let initialMetaSize = Object.entries(metaCache).length;
+    if (useMeta) {
+      Object.entries(overrides).forEach(([word, sims]) =>
+        generateCosimilars(word, sims, metaLRU));
+    }
+    let initialMetaSize = metaLRU.size();
     console.info(msg + 'added ' + initialMetaSize + ' co-similars');
 
-    if (useMeta && Object.keys(similarCache).length) {
+    if (useMeta) {
       // generate the meta-cache from main-cache
-      Object.entries(similarCache).forEach(([word, sims]) =>
-        generateCosimilars(word, sims, metaCache, maxResults));
+      Object.entries(cache).forEach(([word, sims]) =>
+        generateCosimilars(word, sims, metaLRU));
     }
-    let cacheSize = Object.keys(similarCache).length;
-    let metaSize = Object.keys(metaCache).length;
+    similarLRU = new LRUCache(simCacheSize, cache);
+
     console.info(`[INFO] Found ${initialCacheSize} in file cache,`
-      + ` added ${metaSize - initialMetaSize} co-similars`);
-    console.info(`[INFO] ${cacheSize} cache entries, ${metaSize} meta-cache entries`);
+      + ` added ${metaLRU.size() - initialMetaSize} co-similars`);
+    console.info(`[INFO] ${similarLRU.size()} cache entries,`
+      + ` ${metaLRU.size()} meta-cache entries`);
   },
 
   getcache: function (data, worker) {
     finished = true;
-    const cache = similarCache;
-    worker.postMessage({ idx: -1, cache, metaCache });
+    worker.postMessage({
+      idx: -1,
+      cache: similarLRU.toObject(),
+      metaCache: metaLRU.toObject()
+    });
   },
 
   lookup: function (data, worker) {
@@ -61,31 +71,31 @@ this.onmessage = function (e) {
   eventHandlers[event](data, this);
 }
 
-function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
-  let added = 0, add = function (word, map) {
-    if (map.length < maxEntries && !map.includes(word) && isReplaceable(word)) {
-      map.push(word);
-      added++;
+function generateCosimilars(word, sims, lru) {
+  let numAdded = 0;
+  let add = function (word, arr) {
+    if (!arr.includes(word) && isReplaceable(word)) {
+      arr.push(word);
+      numAdded++;
     }
   }
   sims.forEach(next => {
-    if (!(next in dict)) dict[next] = [];
-    add(word, curr = dict[next]);
+    //if (!lru.has(next)) lru.put(next, []);
+    let curr = lru.get(next) || [];
+    add(word, curr); 
     let nextSims = shuffle(sims.filter(w => w !== next && !curr.includes(w)));
     for (let i = 0; i < nextSims.length; i++) {
       add(nextSims[i], curr);
     }
-    dict[next] = curr;
+    lru.put(next, curr);
   });
-  return added;
+  return numAdded;
 }
 
 function findSimilars(idx, word, pos, state, timestamp) {
 
-  // WORKING HERE: why is [CACHE] firing at start..
-
-  if (word in similarCache) { // done if in cache 
-    return randomSubset(similarCache[word]);
+  if (similarLRU.has(word)) { // done if in cache 
+    return randomSubset(similarLRU.get(word));
   }
 
   let limit = maxResults, shuffle = true;
@@ -102,28 +112,26 @@ function findSimilars(idx, word, pos, state, timestamp) {
       && !cand.includes(word));
 
   if (result.length) { // found in RiTa
-    similarCache[word] = result; // add to cache
+    similarLRU.put(result); // add to cache
     let newEntries = 0;
     if (useMeta) { // add co-similars to meta-cache
-      newEntries = generateCosimilars(word, result, metaCache, maxResults);
+      newEntries = generateCosimilars(word, result, metaLRU);
     }
     if (logCacheEntries) {
       let elapsed = Date.now() - timestamp;
-      let msize = Object.keys(metaCache).length;
-      let size = Object.keys(similarCache).length;
       console.log(`[CACHE] @${idx} ${word}/${pos} -> (${result.length}):`
         + ` ${trunc(result)} :: added ${newEntries} meta,`
-        + ` caches=[${size}/${msize}] (${elapsed} ms)`);
+        + ` cache-sizes: ${similarLRU.size()}/${metaLRU.size()} (${elapsed} ms)`);
     }
     return result;
   }
   else { // found in meta-cache
     console.warn('[SIMS] No similars for: "' + word + '"/' + pos);
     if (useMeta) {
-      result = metaCache[word]; // add to cache
+      result = metaLRU.get(word);
       console.warn('[META] Trying meta, found: ', result || '[]');
       if (result && result.length) {
-        similarCache[word] = result; // add result to cache
+        similarLRU.put(result); // add result to cache
         return result;
       }
     }
@@ -190,3 +198,44 @@ function shuffle(arr) {
   return newArray;
 }
 
+class LRUCache {
+
+  constructor(capacity, initialData = {}) {
+    this.data = new Map();
+    this.capacity = capacity;
+    Object.entries(initialData).forEach(([word, sims]) => this.put(word, sims));
+  }
+
+  size() {
+    return this.data.size;
+  }
+
+  has(key) {
+    return this.data.has(key);
+  }
+
+  toObject() {
+    return Object.fromEntries(this.data);
+  }
+
+  get(key) {
+    if (!this.data.has(key)) return undefined;
+    let val = this.data.get(key);
+    this.data.delete(key);
+    this.data.set(key, val);
+    return val;
+  }
+
+  put(key, value) {
+    this.data.delete(key);
+    if (this.data.size >= this.capacity) {
+      this.data.delete(this.data.keys().next().value);
+    }
+    this.data.set(key, value);
+  }
+
+  putAll(arr) {
+    arr.forEach(a => this.put(a));
+  }
+
+}

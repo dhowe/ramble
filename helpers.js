@@ -145,31 +145,3 @@ function getWordSpaceEm(lineEle) {
   let wordSpacingPx = window.getComputedStyle(lineEle).wordSpacing.replace('px', '');
   return parseFloat(wordSpacingPx) / initialMetrics.fontSize; // px => em
 }
-
-class LRUCache {
-
-  constructor(size) {
-    this.cache = new Map();
-    this.capacity = capacity;
-  }
-
-  has(key) {
-    return this.cache.has(key);
-  }
-
-  get(key) {
-    if (!this.cache.has(key)) return undefined;
-    let val = this.cache.get(key);
-    this.cache.delete(key);
-    this.cache.set(key, val);
-    return val;
-  }
-
-  put(key, value) {
-    this.cache.delete(key);
-    if (this.cache.size >= this.capacity) {
-      this.cache.delete(this.cache.keys().next().value);
-    }
-    this.cache.set(key, value);
-  }
-}

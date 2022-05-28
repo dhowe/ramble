@@ -271,3 +271,7 @@ const lineWidths = function (center, rad, lh) {
   }
   return result;
 }
+
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
