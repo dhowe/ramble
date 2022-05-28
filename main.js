@@ -70,7 +70,7 @@ let stops = ["also", "over", "have", "this", "that", "just", "then", "under", "s
 let ignores = ["leding", "expecteds", "reporteds" /* adde by JHC, hasWord == true in RiTa */, "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
 
 // set true to generate a new cache file
-let refreshCache = false;
+let downloadCache = false;
 
 // keyboard toggle options
 let logging = true, verbose = false, highlights = false, hideLegend = true, highlightWs = false, shadowMode = false;
@@ -112,12 +112,12 @@ let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = 1;
+let radius = displayBounds.width / 2, dbug = false;
 
 if (dbug) {
   //highlightWs = true;
-  //logging = true;
-  //verbose = true;
+  logging = true;
+  verbose = true;
   readDelay = 1;
   updateDelay = 100;
 }
@@ -482,25 +482,52 @@ function stop() {
 }
 
 function writeCache(args) {
-  let { cache, metaCache } = args;
-  let diffs = strictReplaceables().length;
-  let hits = 0, count =  diffs + repids.length;
-  repids.forEach(idx => {
-    if (sources.urban[idx] in cache) hits++;
-    let rural = sources.rural[idx];
-    if (sources.urban[idx] !== rural && rural in cache) hits++;
-  });
+  let { cache } = args;
+  //let { sourceCache, missing } = createSourceCache(); // expected=162
   let size = Object.keys(cache).length;
-  let msize = Object.keys(metaCache).length;
-  console.log(`[INFO] found ${repids.length} ids, ${count} original words`);
-  console.log(`[INFO] found ${hits}/${count} in cache, with ${size} entries, ${msize} meta`);
-
-  if (refreshCache) { //  download cache file on stop()
-    let fname = `cache-${hits}.${count}.${size}.js`;
+  if (downloadCache) { //  download cache file on stop()
+    let fname = `cache-${size}.js`;
     let data = `let cache=${JSON.stringify(cache, 0, 2)};`
     download(data, fname, 'text');
     console.log(`[INFO] wrote ${fname}`);
   }
+}
+
+// compute lookups needed for all words in source
+function createSourceCache() {
+  let sourceCache = {};
+  let missing = [];
+  repids.forEach(idx => {
+    let urban = sources.urban[idx];
+    let rural = sources.rural[idx];
+    if (!(urban in similarOverrides)) {
+      if (urban in cache) {
+        sourceCache[urban] = cache[urban];
+      }
+      else {
+        missing.push(urban);
+      }
+    }
+    if (urban === rural) return;
+    if (!(rural in similarOverrides)) {
+      if (rural in cache) {
+        sourceCache[rural] = cache[rural];
+      }
+      else {
+        missing.push(rural);
+      }
+    }
+  });
+
+  if (0) {
+    console.log(Object.keys(sourceCache).length + ' in source cache');
+    if (missing.length) console.error('Missing: ', missing);
+    let filename = 'sourceCache-' + Object.keys(sourceCache).length + '.js';
+    console.log('writing ' + filename);
+    download(`let cache=${JSON.stringify(sourceCache, 0, 2)};`, filename, 'text');
+  }
+
+  return { sourceCache, missing };
 }
 
 function replaceables() { // [] of replaceable indexes

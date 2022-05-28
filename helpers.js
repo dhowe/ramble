@@ -140,67 +140,36 @@ const getShadowText = function (lineIdx) {
   return r.join(" ");
 }
 
-/*
-  Computes the change of width in percentage after a word change using client rectangle
-  !!!Not used and updated!!!
-  @return {
-      min: array[percentage, width] distance to target width with minimal word spacing,
-      max: array[percentage, width] distance to target width with max word spacing
-      opt: array[percentage, width, wsPx(num in px), wsEm(num in em)] distance to target width after ws adjustment
-  }
-  @params newWord: str, the word  to change to
-          wordId: int, the id of the word to be changed
-          field: arr, return field, ['max', 'min', 'opt'] 
-          // only get the neccessary ones for the best performance 
-          // but this is generally slower than widthChangePercentage
-*/
-const widthChangePercentageDom = function (newWord, wordIdx, fields = ['max', 'min']) {
-
-  let result = {};
-  let wordEle = document.getElementById("w" + wordIdx)
-  let originalWord = wordEle.textContent;
-  let spanContainer = wordEle.parentElement;
-  let lineEle = spanContainer.parentElement;
-  let lineIdx = parseInt(lineEle.id.slice(1));
-  let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let style = window.getComputedStyle(lineEle);
-
-  wordEle.textContent = newWord; // make the substitution
-
-  if (fields.includes('max')) {
-    let originWs = style.wordSpacing;
-    lineEle.style.wordSpacing = maxWordSpace + "em";
-    let widthMaxWs = lineEle.firstChild.getBoundingClientRect().width / scaleRatio;
-    lineEle.style.wordSpacing = originWs;
-    result.max = [((widthMaxWs - targetWidth) / targetWidth) * 100, widthMaxWs]
-  }
-
-  if (fields.includes('min')) {
-    let originWs = style.wordSpacing;
-    lineEle.style.wordSpacing = minWordSpace + "em";
-    let widthMinWs = lineEle.firstChild.getBoundingClientRect().width / scaleRatio;
-    lineEle.style.wordSpacing = originWs;
-    result.min = [((widthMinWs - targetWidth) / targetWidth) * 100, widthMinWs]
-  }
-
-  if (fields.includes('opt')) {
-    let originalClass = spanContainer.classList;
-    let originWs = style.wordSpacing;
-    let wordSpaceEm = adjustWordSpace(lineEle, targetWidth);
-    let finalWidth = lineEle.firstChild.getBoundingClientRect().width / scaleRatio;
-    let finalWs = parseFloat(window.getComputedStyle(lineEle).wordSpacing.replace("px", ""));
-    lineEle.style.wordSpacing = originWs;
-    spanContainer.className = "";
-    if (originalClass.length > 0) originalClass.forEach(c => { spanContainer.classList.add(c) });
-    result.opt = [((finalWidth - targetWidth) / targetWidth) * 100, finalWidth, finalWs, wordSpaceEm]
-  }
-
-  wordEle.textContent = originalWord; // restore the original text
-
-  return result;
-}
 
 function getWordSpaceEm(lineEle) {
   let wordSpacingPx = window.getComputedStyle(lineEle).wordSpacing.replace('px', '');
   return parseFloat(wordSpacingPx) / initialMetrics.fontSize; // px => em
+}
+
+class LRUCache {
+
+  constructor(size) {
+    this.cache = new Map();
+    this.capacity = capacity;
+  }
+
+  has(key) {
+    return this.cache.has(key);
+  }
+
+  get(key) {
+    if (!this.cache.has(key)) return undefined;
+    let val = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, val);
+    return val;
+  }
+
+  put(key, value) {
+    this.cache.delete(key);
+    if (this.cache.size >= this.capacity) {
+      this.cache.delete(this.cache.keys().next().value);
+    }
+    this.cache.set(key, value);
+  }
 }

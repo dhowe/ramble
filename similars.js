@@ -2,51 +2,57 @@
 importScripts('lib/rita.js');
 importScripts('cache.js');
 
-let maxResults = 20;
-let metaCacheEnabled = true;
+let maxResults = 20, logCacheEntries = true, useMeta = true;
 let similarCache = typeof cache !== 'undefined' ? cache : {};
-let metaCache = {}, overrides, stops, ignores, sources;
+let metaCache = {}, overrides, stops, ignores, sources, finished;
+
+// main-cache: holds word actually searched (A: [B,C])
+// meta-cache: holds cosimilars (B: [A,C], C: [A,B])
 
 const eventHandlers = {
 
   init: function (data) {
     ({ minWordLength, overrides, ignores, sources, stops } = data);
 
-    let num = Object.entries(validateOverrides(overrides)).length;
+    let numOverrides = Object.entries(validateOverrides(overrides)).length;
+    let initialCacheSize = Object.entries(similarCache).length;
 
-    // generate cosimilars for the overrides
-    let msg = '[DATA] Found ' + num + ' similar overrides, ';
-    Object.entries(overrides).forEach(([word, sims]) =>
-      generateCosimilars(word, sims, metaCache)); // A: [B] -> B: [A]
-    msg += 'added ' + Object.entries(metaCache).length + ' co-similars';
-    console.info(msg);
-
-    msg = `[SIMS] ${Object.keys(similarCache).length} pre-cached, `;
-
-    if (Object.keys(similarCache).length) {
-      // generate the meta-cache for use when no similars are found
-      metaCacheEnabled && Object.entries(similarCache).forEach(([word, sims]) =>
-        generateCosimilars(word, sims, metaCache, maxResults)); // A: [B] -> B: [A]
-    }
-
-    // add overrides (regular and meta) to similarCache
+    // add each override to similarCache
     Object.entries(overrides).forEach(([word, sims]) => similarCache[word] = sims);
 
-    console.info(msg + Object.entries(similarCache).length + ` total, `
-      + `${Object.keys(metaCache).length} meta-entries`);
+    // generate co-similars in meta for overrides
+    let msg = '[INFO] Found ' + numOverrides + ' similar overrides, ';
+    Object.entries(overrides).forEach(([word, sims]) =>
+      generateCosimilars(word, sims, metaCache));
+    let initialMetaSize = Object.entries(metaCache).length;
+    console.info(msg + 'added ' + initialMetaSize + ' co-similars');
+
+    if (useMeta && Object.keys(similarCache).length) {
+      // generate the meta-cache from main-cache
+      Object.entries(similarCache).forEach(([word, sims]) =>
+        generateCosimilars(word, sims, metaCache, maxResults));
+    }
+    let cacheSize = Object.keys(similarCache).length;
+    let metaSize = Object.keys(metaCache).length;
+    console.info(`[INFO] Found ${initialCacheSize} in file cache,`
+      + ` added ${metaSize - initialMetaSize} co-similars`);
+    console.info(`[INFO] ${cacheSize} cache entries, ${metaSize} meta-cache entries`);
   },
 
   getcache: function (data, worker) {
+    finished = true;
     const cache = similarCache;
     worker.postMessage({ idx: -1, cache, metaCache });
   },
 
   lookup: function (data, worker) {
     const { idx, dword, sword, state, timestamp } = data;
-    let pos = sources.pos[idx];
-    const dsims = findSimilars(idx, dword, pos, state, timestamp);
-    const ssims = findSimilars(idx, sword, pos, state, timestamp);
-    worker.postMessage({ idx, dword, sword, dsims, ssims, timestamp });
+    if (!finished) {
+      let pos = sources.pos[idx];
+      const dsims = findSimilars(idx, dword, pos, state, timestamp);
+      const ssims = findSimilars(idx, sword, pos, state, timestamp);
+      worker.postMessage({ idx, dword, sword, dsims, ssims, timestamp });
+    }
   }
 }
 
@@ -76,68 +82,64 @@ function generateCosimilars(word, sims, dict, maxEntries = Infinity) {
 
 function findSimilars(idx, word, pos, state, timestamp) {
 
-  // WORKING HERE: rethink
-  
-  let metaCacheHit = false, result;
-  if (word in similarCache) {
-    result = randomSubset(similarCache[word]);
-  }
-  else {
-    //console.time('sims');
-    let limit = maxResults, shuffle = true;
-    let rhymes = RiTa.rhymes(word, { pos, limit, shuffle });
-    let sounds = RiTa.soundsLike(word, { pos, limit, shuffle });
-    let spells = RiTa.spellsLike(word, { pos, limit, shuffle });
-    let sims = Array.from(new Set([...rhymes, ...sounds, ...spells]));
-    //console.timeEnd('sims');
+  // WORKING HERE: why is [CACHE] firing at start..
 
-    result = randomSubset(sims).filter(cand =>
-      !ignores.includes(cand)
+  if (word in similarCache) { // done if in cache 
+    return randomSubset(similarCache[word]);
+  }
+
+  let limit = maxResults, shuffle = true;
+  let rhymes = RiTa.rhymes(word, { pos, limit, shuffle });
+  let sounds = RiTa.soundsLike(word, { pos, limit, shuffle });
+  let spells = RiTa.spellsLike(word, { pos, limit, shuffle });
+  let sims = Array.from(new Set([...rhymes, ...sounds, ...spells]));
+
+  let result = randomSubset(sims)
+    .filter(cand =>
+      isReplaceable(cand, state)
+      && !ignores.includes(cand)
       && !word.includes(cand)
-      && !cand.includes(word)
-      && isReplaceable(cand, state));
+      && !cand.includes(word));
 
-    if (!result || !result.length) {
-      console.warn('[SIMS] No similars for: "' + word + '"/' + pos);
-      if (metaCacheEnabled) {
-        result = metaCache[word];
-        console.warn('[META] Trying meta, found: ', result);
-        if (result && result.length) {
-          metaCacheHit = true;
-        }
+  if (result.length) { // found in RiTa
+    similarCache[word] = result; // add to cache
+    let newEntries = 0;
+    if (useMeta) { // add co-similars to meta-cache
+      newEntries = generateCosimilars(word, result, metaCache, maxResults);
+    }
+    if (logCacheEntries) {
+      let elapsed = Date.now() - timestamp;
+      let msize = Object.keys(metaCache).length;
+      let size = Object.keys(similarCache).length;
+      console.log(`[CACHE] @${idx} ${word}/${pos} -> (${result.length}):`
+        + ` ${trunc(result)} :: added ${newEntries} meta,`
+        + ` caches=[${size}/${msize}] (${elapsed} ms)`);
+    }
+    return result;
+  }
+  else { // found in meta-cache
+    console.warn('[SIMS] No similars for: "' + word + '"/' + pos);
+    if (useMeta) {
+      result = metaCache[word]; // add to cache
+      console.warn('[META] Trying meta, found: ', result || '[]');
+      if (result && result.length) {
+        similarCache[word] = result; // add result to cache
+        return result;
       }
     }
   }
 
-  if (result && result.length) { // got something 
-
-    let newEntries, msg = '', elapsed = Date.now() - timestamp;
-    if (!metaCacheHit) {
-      similarCache[word] = result; // add result to cache
-
-      if (metaCacheEnabled) { // add cosimilars to meta-cache
-        newEntries = generateCosimilars(word, result, metaCache, maxResults);
-        msg = newEntries + '/' + Object.keys(metaCache).length + ' meta-entries';
-      }
-
-      console.log('[CACHE] (' + elapsed + 'ms) ' + word
-        + '/' + pos + '(' + result.length + '): ' + trunc(result)
-        + ' [' + Object.keys(similarCache).length + '] ' + msg);
-    }
+  // no results
+  let inSource = sources.rural[idx] === word
+    || sources.urban[idx] === word && sources.pos[idx] === pos;
+  findSimilars.sourceMisses = findSimilars.sourceMisses || new Set();
+  if (inSource && !findSimilars.sourceMisses.has(word + '/' + pos)) {
+    findSimilars.sourceMisses.add(word + '/' + pos)
+    console.warn('[WARN] No similars for: "' + word + '"/' + pos + (inSource ?
+      ' *** [In Source] ' + JSON.stringify(Array.from(findSimilars.sourceMisses)) : ''));
   }
-  else {                // no results
-    result = [];
-    let inSource = sources.rural[idx] === word
-      || sources.urban[idx] === word && sources.pos[idx] === pos;
-    findSimilars.sourceMisses = findSimilars.sourceMisses || new Set();
-    if (inSource && !findSimilars.sourceMisses.has(word + '/' + pos)) {
-      findSimilars.sourceMisses.add(word + '/' + pos)
-      console.warn('[WARN] No similars for: "' + word + '"/' + pos + (inSource ?
-        ' *** [In Source] ' + JSON.stringify(Array.from(findSimilars.sourceMisses)) : ''));
-    }
 
-  }
-  return result;
+  return [];
 }
 
 function randomSubset(sims) {
