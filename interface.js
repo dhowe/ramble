@@ -135,12 +135,12 @@ function createLegend(metrics) {
   <div><svg class="overlap-legend">
   <rect style="fill: ${visBandColors[3]}" id="box" x="0" y="0" width="20" height="20"/>
   </svg> <span> found<span></div>
-  <div> <div id="about-button" style="display:none">
-  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 50 50">
-  <circle cx="25" cy="25" r = "25" fill="#e6e6e6" />
-  <text x="25" y="25" text-anchor="middle" fill="#B3B3B3" font-size="2em" dy=".4em">?</text>
+  <div> <div id="about-button">
+  <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 50 50">
+  <circle cx="23" cy="25" r = "23" fill="#e6e6e6" />
+  <text x="23" y="25" text-anchor="middle" fill="#B3B3B3" font-size="1.8em" dy=".35em">?</text>
   </svg>
-  </button></div>`;
+  </button></div>`;23
 
   if (hideLegend) {
     legendContent.classList.add('hidden-legend')
@@ -151,6 +151,13 @@ function createLegend(metrics) {
   domLegend.append(legendContent);
   domLegend.style.fontSize = (metrics.fontSize || 20.5) + 'px';
   document.querySelector("#legend-container").append(domLegend);
+
+  document.querySelector('#about-button').onclick = function () {
+    document.querySelector('#about').style.display = 'block';
+  }
+  
+  // TODO: remove
+  document.querySelector('#about').style.display = 'block';
 
   return domLegend;
 }

@@ -13,10 +13,10 @@
     // production or development tag
     let production = location.hostname === 'rednoise.org';
     let tag = production ? '(prod)' : '(dev)';
-    
+
     // kiosk or regular
     let kiosk = new URLSearchParams(window.location.search).has('kiosk');
-    
+
     // Load/display the app version number
     fetch('package.json').then(res => res.json())
       .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
@@ -37,6 +37,23 @@
 <body>
   <div id="center-wrapper">
     <div id="centered-container">
+      <div id="about" class="modal">
+        <div id="aboutTitle">Preoccupations</div>
+        <div id="aboutDescription">
+          <p>
+            <em>Preoccupations</em> presents prose-poetic and discursive ‘translations’ between a pair of structurally related
+            texts, set respectively in contemplative-rural and combative-urban&nbsp;environments. See this <a href="https://thenewriver.us/preoccupations/" target="_blank">
+              page</a> for further&nbsp;documentation.<br />
+          </p>
+        </div>
+        <div id="aboutAuthor"><a href="https://rednoise.org/daniel" target="_new">John Cayley</a> & <a
+            href="https://rednoise.org/daniel" target="_new">Daniel C Howe</a><br />
+          May 1, 2022</div>
+
+        <div id="aboutClose"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img
+              alt="Creative Commons License" style="border-width:0" target="_new"
+              src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a></div>
+      </div>
       <div id="container">
         <div id="display-container">
           <div id="display"></div>
