@@ -393,8 +393,8 @@ function postReplace(e) {
       console.log(`${numMods()}) @${lineIdFromWordId(idx)}.${idx} `
         + `${dword}->${dnext}(${domain.substring(0, 1)}), `
         + `${sword}->${snext}(${shadow.substring(0, 1)}) `
-        + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(3)}`
-        + ` adjustedWidth=` + measureWidthCtx(text, style.font, wordSpaceEm));
+        + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(2)}`
+        + ` adjustedWidth=${measureWidthCtx(text, style.font, wordSpaceEm).toFixed(2)}`);
     }
   }
   else {
