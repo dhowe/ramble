@@ -356,7 +356,6 @@ function replace() {
   let { domain } = state;
   let shadow = shadowTextName();
   let idx = RiTa.random(repids.filter(id => !reader || !beingRead(id)));
-  //idx = 261; //updateDelay = 10000000; // DBUG: remove
   let dword = last(history[domain][idx]);
   let sword = last(history[shadow][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
@@ -372,6 +371,7 @@ function postReplace(e) {
   if (idx < 0) return writeCache(e.data); // write cache here
 
   let shadow = shadowTextName();
+  let lineIdx = lineIdFromWordId(idx);
   let delayMs, pos = sources.pos[idx];
   if (dsims.length && ssims.length && !beingRead(idx)) {
 
@@ -390,7 +390,7 @@ function postReplace(e) {
     if ((logging && verbose) || stepMode) {
       let style = window.getComputedStyle(lineEle);
       let text = lineEle.firstChild.textContent;
-      console.log(`${numMods()}) @${lineIdFromWordId(idx)}.${idx} `
+      console.log(`${numMods()}) @${lineIdx}.${idx} `
         + `${dword}->${dnext}(${domain.substring(0, 1)}), `
         + `${sword}->${snext}(${shadow.substring(0, 1)}) `
         + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(2)}`
@@ -482,7 +482,7 @@ function stop() {
 }
 
 function writeCache(args) {
-  let { cache } = args;
+  let { cache, metaCache } = args;
   //let { sourceCache, missing } = createSourceCache(); // expected=162
   let size = Object.keys(cache).length;
   if (downloadCache) { //  download cache file on stop()
@@ -667,31 +667,10 @@ function lineIdFromWordId(idx) {
   return parseInt(lineEle.id.slice(1));
 }
 
-function lineIdFromWordEle(wordEle) {
-  let lineEle = wordEle.parentElement.parentElement;
-  return parseInt(lineEle.id.slice(1));
-}
-
-function between(actual, min, max, range = (max - min) / 10) {
-  let c1 = actual >= (min - Math.abs(range))
-  let c2 = actual <= (max + Math.abs(range));
-  return c1 && c2;
-}
-
 function last(arr) {
   if (arr && arr.length) return arr[arr.length - 1];
 }
 
 function log(msg) {
   logging && console.log('[INFO] ' + msg);
-}
-
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-let lastSelected = function (wordIdx) {
-  let hstack = history[state.domain][wordIdx];
-  let lastIndex = hstack.length > 1 ? hstack.length - 2 : hstack.length - 1;
-  return hstack[lastIndex];
 }
