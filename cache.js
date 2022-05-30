@@ -420,18 +420,6 @@ let cache={
     "pushed",
     "rusted"
   ],
-  "several": [
-    "level",
-    "civil",
-    "servile",
-    "sterile",
-    "sovereign",
-    "sorrel",
-    "central",
-    "federal",
-    "general",
-    "severe"
-  ],
   "more": [
     "newer",
     "poorer",
@@ -1292,7 +1280,6 @@ let cache={
     "elude"
   ],
   "being": [
-    "toing",
     "foreseeing",
     "fleeing",
     "seeing",

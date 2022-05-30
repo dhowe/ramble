@@ -60,14 +60,14 @@ let similarOverrides = {
   "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
   "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
-  "will": ["would", "must", "since", "again", "finally", "ultimately"]
+  "will": ["would", "must", "since", "again", "finally", "ultimately"],
 };
 
 // words considered un-replaceable
 let stops = ["also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
-let ignores = ["leding", "expecteds", "reporteds" /* adde by JHC, hasWord == true in RiTa */, "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
+let ignores = ["leding", "expecteds", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
 
 // set true to generate a new cache file
 let downloadCache = false;
@@ -100,11 +100,6 @@ let measureDiv = document.querySelector('#measure-line');
 let displayContainer = document.querySelector("#display-container");
 let measureCanvas = document.querySelector("#measure-ctx");
 let displayBounds = domDisplay.getBoundingClientRect();
-let measureCtx = measureCanvas.getContext('2d');
-measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
-measureCtx.font = '21.8px "Source Serif Pro"'
-let isSafari = measureCtx.font !== '21.8px "Source Serif Pro"';
-let safariWidthScaleRatio = 1;
 
 let wordLineMap = { word2Line: [], line2Word: [] };
 let reader, worker, spans, initialMetrics, scaleRatio;
@@ -114,12 +109,17 @@ let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
 let radius = displayBounds.width / 2, dbug = false;
 
+let measureCtx = measureCanvas.getContext('2d');
+measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
+measureCtx.font = '21.8px "Source Serif Pro"'; // safari: font-size=int
+let isSafari = measureCtx.font !== '21.8px "Source Serif Pro"';
+let safariWidthScaleRatio = 1;
+
 if (dbug) {
-  //highlightWs = true;
   logging = true;
-  verbose = true;
   readDelay = 1;
   updateDelay = 100;
+  domStats.style.display = 'block';
 }
 
 doLayout();
@@ -132,7 +132,7 @@ ramble(); // go
 function shadowRandom(wordIdx, similars) {
 
   let ldbug = false;
-  let lineIdx = wordLineMap.word2Line[wordIdx]
+  let lineIdx = wordLineMap.word2Line[wordIdx];
   let targetWidth = initialMetrics.lineWidths[lineIdx];
   let oldWord = history[shadowTextName()].map(last)[wordIdx];
   let minAllowedWidth = targetWidth * .95;
@@ -172,7 +172,6 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   let ldbug = false;
   if (opts && opts.isShadow) return shadowRandom(wordIdx, similars);
-
   if (ldbug) updateDelay = 10000000; // stop after 1 update
 
   let wordEle = document.querySelector(`#w${wordIdx}`);
@@ -193,11 +192,11 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
-  if (currentLineWidth > maxAllowedWidth) console.log
-    ('[WARN] current (#' + lineIdx + ') too long: ' + currentLineWidth);
+  if (currentLineWidth > maxAllowedWidth) log('[INFO] Line #'
+    + lineIdx + ' longer than max-width: ' + currentLineWidth);
 
-  if (currentLineWidth < minAllowedWidth) console.log
-    ('[WARN] current (#' + lineIdx + ') too short: ' + currentLineWidth);
+  if (currentLineWidth < minAllowedWidth) log('[INFO] Line #'
+    + lineIdx + ' shorter than min-width: ' + currentLineWidth);
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
@@ -218,16 +217,6 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   }
   else {
     if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
-  }
-
-  if (0) {
-    console.time('Execution Time Dom');
-    similars.forEach(sim => {
-      let res = widthChangePercentageDom(sim, wordIdx, ['max', 'min', 'opt']);
-      if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + " word: "
-        + oldWord + ", option: " + sim + ", result-DOM: ", res);
-    })
-    console.timeEnd('Execution Time Dom');
   }
 
   return RiTa.random(options);
@@ -385,6 +374,7 @@ function postReplace(e) {
     history[shadow][idx].push(snext);
     updateState();
 
+    // compute next delay and log the replacement
     let ms = Date.now() - timestamp;
     delayMs = Math.max(1, updateDelay - ms);
     if ((logging && verbose) || stepMode) {
@@ -398,11 +388,12 @@ function postReplace(e) {
     }
   }
   else {
-    let msg = `[SIMS] @${lineIdFromWordId(idx)}.${idx} [${pos}] `;
-    if (beingRead(idx)) msg += `'${dword}' is currently being read`;
+    delayMs = 1;
+    let msg = `[SKIP] @${lineIdx}.${idx} [${pos}] `;
+    if (beingRead) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `None found for '${dword}' `;
     if (!ssims.length) msg += `None found for '${sword}' (shadow)`;
-    console.log(msg);
+    console.warn(msg);
   }
 
   if (!stepMode) state.loopId = setTimeout(ramble, delayMs);
@@ -656,12 +647,13 @@ function shadowTextName(domain) {
   return domain === 'rural' ? 'urban' : 'rural';
 }
 
-function beingRead(idx) {
+function beingRead(idx) { // unused
   return reader.selection()
     .includes(sources[state.domain][idx]);
 }
 
 function lineIdFromWordId(idx) {
+  // return wordLineMap.word2Line[idx]; // strange results
   let wordEle = document.getElementById("w" + idx);
   let lineEle = wordEle.parentElement.parentElement;
   return parseInt(lineEle.id.slice(1));
