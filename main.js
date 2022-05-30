@@ -199,11 +199,11 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
-  if (currentLineWidth > maxAllowedWidth) log('[INFO] Line #'
-    + lineIdx + ' longer than max-width: ' + currentLineWidth);
+  if (currentLineWidth > maxAllowedWidth) log('Line #' + lineIdx
+    + ' longer than max-width: ' + currentLineWidth.toFixed(2));
 
-  if (currentLineWidth < minAllowedWidth) log('[INFO] Line #'
-    + lineIdx + ' shorter than min-width: ' + currentLineWidth);
+  if (currentLineWidth < minAllowedWidth) log('Line #' + lineIdx
+    + ' shorter than min-width: ' + currentLineWidth.toFixed(2));
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
