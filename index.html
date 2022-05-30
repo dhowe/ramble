@@ -11,7 +11,7 @@
   <script src="lib/rita.js"></script>
   <script>
     // production or development
-    const phosts = ['rednoise.org', 'github.io'];
+    const phosts = ['rednoise.org', 'dhowe.github.io'];
     const production = phosts.includes(location.hostname);
     const tag = production ? '(prod)' : '(dev)';
 
@@ -20,7 +20,7 @@
 
     // load/display app version
     fetch('package.json').then(res => res.json())
-      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
+      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag} ${location.hostname}`))
       .catch(e => console.log('[WARN] No Version!', e));
   </script>
   <script src="lib/progressbar.js"></script>
