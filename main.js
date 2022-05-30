@@ -647,10 +647,10 @@ function shadowTextName(domain) {
   return domain === 'rural' ? 'urban' : 'rural';
 }
 
-// function beingRead(idx) { // unused
-//   return reader.selection()
-//     .includes(sources[state.domain][idx]);
-// }
+function beingRead(idx) { // unused
+  return reader.selection()
+    .includes(sources[state.domain][idx]);
+}
 
 function lineIdFromWordId(idx) {
   // return wordLineMap.word2Line[idx]; // strange results

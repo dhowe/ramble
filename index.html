@@ -21,6 +21,15 @@
     fetch('package.json').then(res => res.json())
       .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
       .catch(e => console.log('[WARN] No Version!', e));
+
+    // about-dialog
+    function closeAbout(){
+      document.getElementById("about-container").style.display = 'none';
+
+      document.getElementById("icon-container").classList.remove("display-none");
+      document.getElementById("legend-container").classList.remove("display-none")
+
+    }
   </script>
   <script src="lib/progressbar.js"></script>
   <link rel="stylesheet" href="style.css">
@@ -37,26 +46,29 @@
 <body>
   <div id="center-wrapper">
     <div id="centered-container">
-      <div id="about" class="modal">
-        <div id="aboutTitle">Preoccupations</div>
-        <div id="aboutDescription">
-          <p>
-            <em>Preoccupations</em> presents prose-poetic and discursive ‘translations’ between a pair of structurally
-            related
-            texts, set respectively in contemplative-rural and combative-urban&nbsp;environments. See this <a
-              href="https://thenewriver.us/preoccupations/" target="_blank">
-              page</a> for more&nbsp;info.<br />
-          </p>
+      <div id = "about-container">
+        <div id="about-background"></div>
+        <div id="about" class="modal">
+          <div id="aboutTitle">Preoccupations</div>
+          <div id="aboutDescription">
+            <p>
+              <em>Preoccupations</em> presents prose-poetic and discursive ‘translations’ between a pair of structurally
+              related
+              texts, set respectively in contemplative-rural and combative-urban&nbsp;environments. See this <a
+                href="https://thenewriver.us/preoccupations/" target="_blank">
+                page</a> for more&nbsp;info.<br />
+            </p>
+          </div>
+          <div id="aboutAuthor"><a href="https://rednoise.org/daniel" target="_blank">John Cayley</a> & <a
+              href="https://rednoise.org/daniel" target="_blank">Daniel C Howe</a><br />
+            May 1, 2022
+          </div>
+          <div id="aboutClose"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img
+                alt="Creative Commons License" style="border-width:0" target="_blank"
+                src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          </div>
+          <a href="javascript:void(0)" rel="modal:close" class="close-modal " onclick="closeAbout()">Close</a>
         </div>
-        <div id="aboutAuthor"><a href="https://rednoise.org/daniel" target="_new">John Cayley</a> & <a
-            href="https://rednoise.org/daniel" target="_new">Daniel C Howe</a><br />
-          May 1, 2022
-        </div>
-        <div id="aboutClose"><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img
-              alt="Creative Commons License" style="border-width:0" target="_new"
-              src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
-        </div>
-        <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
       </div>
       <div id="container">
         <div id="display-container">

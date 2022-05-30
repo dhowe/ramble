@@ -166,11 +166,12 @@ function createLegend(metrics) {
   document.querySelector("#legend-container").append(domLegend);
 
   document.querySelector('#about-button').onclick = function () {
+    document.querySelector('#about-container').style.display = 'block';
     document.querySelector('#about').style.display = 'block';
+
+    document.querySelector("#icon-container").classList.add("display-none");
+    document.querySelector("#legend-container").classList.add("display-none");
   }
-  
-  // TODO: remove
-  document.querySelector('#about').style.display = 'block';
 
   return domLegend;
 }
@@ -180,9 +181,9 @@ function createIcon(metrics) {
   width="25" height="25" viewBox="0 0 25 25" fill="none" 
   stroke="currentColor" stroke-width="3" stroke-linecap="round" 
   stroke-linejoin="round">
-    <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
-    <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
-    <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
+    <line x1="2.5" y1="4" x2="22.5" y2="4"></line>
+    <line x1="2.5" y1="11" x2="22.5" y2="11"></line>
+    <line x1="2.5" y1="18" x2="22.5" y2="18"></line>
   </svg>`
   let domIcon = document.createElement("div");
   domIcon.id = "three-bar-icon";
