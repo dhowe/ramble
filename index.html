@@ -20,7 +20,7 @@
 
     // load/display app version
     fetch('package.json').then(res => res.json())
-      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag} ${location.hostname}`))
+      .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
       .catch(e => console.log('[WARN] No Version!', e));
   </script>
   <script src="lib/progressbar.js"></script>
