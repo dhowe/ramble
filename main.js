@@ -5,10 +5,13 @@ let walks = { short: 2, long: 16 };
 let stepsPerLeg = 50;
 
 // time between word replacements (ms)
-let updateDelay = 800
+let updateDelay = 800;
 
 // time on new text before updates (ms) 
 let readDelay = stepsPerLeg * updateDelay;
+
+// time before reader begins (ms)
+let initialDelay = 3000;
 
 // min/max/start CSS word-spacing (em)
 let minWordSpace = -0.1, maxWordSpace = 0.5, initialWordSpace = 0.1;
@@ -296,9 +299,17 @@ function ramble() {
     spans = document.getElementsByClassName("word");
 
     // create/start the reader
-    reader = new Reader(spans);
-    reader.pauseThen(update, readDelay);
-    reader.start();
+    setTimeout(() => {
+      reader = new Reader(spans);
+      reader.pauseThen(update, readDelay);
+      reader.start();
+
+      log('Starting reader...');
+      domLegend.style.display = 'block';
+      threeBarIcon.style.display = 'block';
+      updateInfo();
+
+    }, initialDelay);
   }
 
   if (updating) return outgoing ? replace() : restore();
