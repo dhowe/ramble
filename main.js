@@ -172,7 +172,6 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   let ldbug = false;
   if (opts && opts.isShadow) return shadowRandom(wordIdx, similars);
-
   if (ldbug) updateDelay = 10000000; // stop after 1 update
 
   let wordEle = document.querySelector(`#w${wordIdx}`);
@@ -193,11 +192,11 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
-  if (currentLineWidth > maxAllowedWidth) console.log
-    ('[WARN] current (#' + lineIdx + ') too long: ' + currentLineWidth);
+  if (currentLineWidth > maxAllowedWidth) log('[INFO] Line #'
+    + lineIdx + ' longer than max-width: ' + currentLineWidth);
 
-  if (currentLineWidth < minAllowedWidth) console.log
-    ('[WARN] current (#' + lineIdx + ') too short: ' + currentLineWidth);
+  if (currentLineWidth < minAllowedWidth) log('[INFO] Line #'
+    + lineIdx + ' shorter than min-width: ' + currentLineWidth);
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
@@ -218,16 +217,6 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   }
   else {
     if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
-  }
-
-  if (0) {
-    console.time('Execution Time Dom');
-    similars.forEach(sim => {
-      let res = widthChangePercentageDom(sim, wordIdx, ['max', 'min', 'opt']);
-      if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + " word: "
-        + oldWord + ", option: " + sim + ", result-DOM: ", res);
-    })
-    console.timeEnd('Execution Time Dom');
   }
 
   return RiTa.random(options);

@@ -77,29 +77,32 @@ function keyhandler(e) {
   }
 }
 
-/* update stats in debug panel */
+/* update stats and progress bars */
 function updateInfo() {
   let { updating, domain, outgoing, legs, maxLegs } = state;
 
-  let affvals = Object.fromEntries(Object.entries(affinities())
-    .map(([k, raw]) => {
-      let fmt = (raw * 100).toFixed(2);  // pad
-      while (fmt.length < 5) fmt = '0' + fmt;
-      return [k, fmt];
-    }));
+  if (domStats.style.display === 'block') { // stats panel open?
 
-  // Update the #stats panel
-  let data = 'Domain: ' + domain;
-  data += '&nbsp;' + (updating ? (outgoing ? '⟶' : '⟵') : 'X');
-  data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
-  data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
-  data += ' shared=' + affvals.shared + ' free=' + affvals.free;
-  if (typeof performance !== undefined && performance.memory) {
-    let mem = performance.memory.usedJSHeapSize; // js heap
-    data += ` [heap=${(mem / Math.pow(1000, 2)).toFixed(2)}]`;
+    // compute the affinities
+    let affvals = Object.fromEntries(Object.entries(affinities())
+      .map(([k, raw]) => {
+        let fmt = (raw * 100).toFixed(2);  // pad
+        while (fmt.length < 5) fmt = '0' + fmt;
+        return [k, fmt];
+      }));
+
+    // update the #stats panel
+    let data = 'Domain: ' + domain;
+    data += '&nbsp;' + (updating ? (outgoing ? '⟶' : '⟵') : 'X');
+    data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
+    data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
+    data += ' shared=' + affvals.shared + ' free=' + affvals.free;
+    if (typeof performance !== undefined && performance.memory) {
+      let mem = performance.memory.usedJSHeapSize; // js heap
+      data += ` [mem=${(mem / Math.pow(1000, 2)).toFixed(2)}]`;
+    }
+    domStats.innerHTML = data;
   }
-
-  domStats.innerHTML = data;
 
   progressBars.forEach((p, i) => {
     let num = 0;
@@ -162,10 +165,13 @@ function createLegend(metrics) {
 }
 
 function createIcon(metrics) {
-  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-  <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
-  <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
-  <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" 
+  width="25" height="25" viewBox="0 0 25 25" fill="none" 
+  stroke="currentColor" stroke-width="3" stroke-linecap="round" 
+  stroke-linejoin="round">
+    <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
+    <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
+    <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
   </svg>`
   let domIcon = document.createElement("div");
   domIcon.id = "three-bar-icon";
@@ -175,7 +181,8 @@ function createIcon(metrics) {
   iconWrapper.id = "icon-wrapper";
   iconWrapper.innerHTML = iconSVG;
   iconWrapper.addEventListener("click", () => {
-    document.getElementsByClassName("hidden-legend")[0].classList.toggle("hidden-legend-v");
+    document.getElementsByClassName("hidden-legend")[0]
+      .classList.toggle("hidden-legend-v");
   })
   domIcon.append(iconWrapper);
   domIcon.style.display = "none";
@@ -277,12 +284,8 @@ function hideCursor(e) {
 function updateProgressBar(p, i, m, r) {
   let arr = m[i];
   let str = "matrix(";
-  arr.forEach(n => {
-    let nstr = n * r + ",";
-    str += nstr;
-  })
-  str = str.substring(0, str.length - 1);
-  str += ")";
+  arr.forEach(n => str += (n * r) + ",");
+  str = str.substring(0, str.length - 1) + ")";
   //console.log(str);
   p.style.transform = str;
 }
