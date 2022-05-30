@@ -27,6 +27,10 @@ class Reader {
     this.pauseForId = setTimeout(func, 1);
   }
 
+  currentLine() {
+    return lineIdFromWordId(this.index);
+  }
+
   selection() {
 
     // line-based highlighter

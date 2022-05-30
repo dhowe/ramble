@@ -3,7 +3,6 @@ importScripts('lib/rita.js');
 importScripts('cache.js');
 
 let maxResults = 20, logCacheEntries = true, useMeta = true;
-//let similarCache = typeof cache !== 'undefined' ? cache : {}, metaCache = {},
 let overrides, stops, ignores, sources, finished;
 let metaLRU, similarLRU, metaCacheSize = 10000, simCacheSize = 5000;
 
@@ -13,11 +12,10 @@ let metaLRU, similarLRU, metaCacheSize = 10000, simCacheSize = 5000;
 const eventHandlers = {
 
   init: function (data) {
-    ({ minWordLength, overrides, ignores, sources, stops } = data);
+    ({ minWordLength, overrides, ignores, sources, state, stops } = data);
 
     let numOverrides = Object.entries(validateOverrides(overrides)).length;
     let initialCacheSize = typeof cache !== 'undefined' ? Object.keys(cache).length : 0;
-//    let initialCacheSize = Object.entries(similarCache).length;
 
     // add each override to similarCache
     Object.entries(overrides).forEach(([word, sims]) => cache[word] = sims);
@@ -25,25 +23,26 @@ const eventHandlers = {
     metaLRU = new LRUCache(metaCacheSize);
 
     // generate co-similars in meta for overrides
-    let msg = '[INFO] Found ' + numOverrides + ' similar overrides, ';
     if (useMeta) {
       Object.entries(overrides).forEach(([word, sims]) =>
         generateCosimilars(word, sims, metaLRU));
     }
-    let initialMetaSize = metaLRU.size();
-    console.info(msg + 'added ' + initialMetaSize + ' co-similars');
 
+    let initialMetaSize = metaLRU.size();
     if (useMeta) {
       // generate the meta-cache from main-cache
       Object.entries(cache).forEach(([word, sims]) =>
         generateCosimilars(word, sims, metaLRU));
     }
+    
     similarLRU = new LRUCache(simCacheSize, cache);
 
-    console.info(`[INFO] Found ${initialCacheSize} in file cache,`
-      + ` added ${metaLRU.size() - initialMetaSize} co-similars`);
-    console.info(`[INFO] ${similarLRU.size()} cache entries,`
-      + ` ${metaLRU.size()} meta-cache entries`);
+    if (state.logging) {
+      let cosimCount = metaLRU.size() - initialMetaSize;
+      console.log(`[INFO] Found ${numOverrides} similar overrides, added ${initialMetaSize} co-similars`);
+      console.log(`[INFO] Found ${initialCacheSize} in file cache, added ${cosimCount} co-similars`);
+      console.log(`[INFO] ${similarLRU.size()} cache entries, ${metaLRU.size()} meta-cache entries`);
+    }
   },
 
   getcache: function (data, worker) {
@@ -80,9 +79,8 @@ function generateCosimilars(word, sims, lru) {
     }
   }
   sims.forEach(next => {
-    //if (!lru.has(next)) lru.put(next, []);
     let curr = lru.get(next) || [];
-    add(word, curr); 
+    add(word, curr);
     let nextSims = shuffle(sims.filter(w => w !== next && !curr.includes(w)));
     for (let i = 0; i < nextSims.length; i++) {
       add(nextSims[i], curr);
@@ -119,8 +117,8 @@ function findSimilars(idx, word, pos, state, timestamp) {
     }
     if (logCacheEntries) {
       let elapsed = Date.now() - timestamp;
-      console.log(`[CACHE] @${idx} ${word}/${pos} -> (${result.length}):`
-        + ` ${trunc(result)} :: added ${newEntries} meta,`
+      if (state.logging) console.log(`[CACHE] @${idx} ${word}/${pos} ->`
+        + ` (${result.length}): ${trunc(result)} :: added ${newEntries} meta,`
         + ` cache-sizes: ${similarLRU.size()}/${metaLRU.size()} (${elapsed} ms)`);
     }
     return result;
@@ -159,7 +157,6 @@ function randomSubset(sims) {
 function isReplaceable(word) {
   let res = (word.length >= minWordLength || word in overrides)
     && !stops.includes(word);
-  //console.log(word, res);
   return res;
 }
 

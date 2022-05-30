@@ -27,10 +27,7 @@ function keyhandler(e) {
     reader.unpauseThen(update);
     console.log('[KEYB] skip-delay');
   }
-
-  if (production) return; // only I/D keys for prod
-
-  if (e.code === 'KeyL') {
+  else if (e.code === 'KeyL') {
     logging = !logging;
     console.log('[KEYB] logging: ' + logging);
   }
@@ -38,7 +35,10 @@ function keyhandler(e) {
     verbose = !verbose;
     console.log('[KEYB] verbose: ' + verbose);
   }
-  else if (e.code === 'KeyH') {
+
+  if (production) return; // only I/D keys for prod
+
+  if (e.code === 'KeyH') {
     highlights = !highlights;
     if (!highlights) {
       Array.from(spans).forEach(e => {
@@ -77,10 +77,11 @@ function keyhandler(e) {
   }
 }
 
-/* update stats in debug panel */
+/* update stats and progress bars */
 function updateInfo() {
   let { updating, domain, outgoing, legs, maxLegs } = state;
 
+  // compute the affinities
   let affvals = Object.fromEntries(Object.entries(affinities())
     .map(([k, raw]) => {
       let fmt = (raw * 100).toFixed(2);  // pad
@@ -88,13 +89,24 @@ function updateInfo() {
       return [k, fmt];
     }));
 
-  // Update the #stats panel
-  let data = 'Domain: ' + domain;
-  data += '&nbsp;' + (updating ? (outgoing ? '⟶' : '⟵') : 'X');
-  data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
-  data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
-  data += ' shared=' + affvals.shared + ' free=' + affvals.free;
-  domStats.innerHTML = data;
+  if (domStats.style.display === 'block') { // stats panel open?
+
+    // update the #stats panel
+    let data = 'Domain: ' + domain;
+    data += '&nbsp;' + (updating ? (outgoing ? '⟶' : '⟵') : 'X');
+    data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
+    data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
+    data += ' shared=' + affvals.shared + ' free=' + affvals.free;
+    
+    if (!production) data += ` Line=${reader.currentLine()}`;
+
+    if (typeof performance !== undefined && performance.memory) {
+      let mem = performance.memory.usedJSHeapSize; // js heap
+      data += `  [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
+    }
+    
+    domStats.innerHTML = data;
+  }
 
   progressBars.forEach((p, i) => {
     let num = 0, label = affinityLabels[i];
@@ -155,10 +167,13 @@ function createLegend(metrics) {
 }
 
 function createIcon(metrics) {
-  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-  <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
-  <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
-  <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" 
+  width="25" height="25" viewBox="0 0 25 25" fill="none" 
+  stroke="currentColor" stroke-width="3" stroke-linecap="round" 
+  stroke-linejoin="round">
+    <line x1="2.5" y1="7.5" x2="22.5" y2="7.5"></line>
+    <line x1="2.5" y1="15" x2="22.5" y2="15"></line>
+    <line x1="2.5" y1="22.5" x2="22.5" y2="22.5"></line>
   </svg>`
   let domIcon = document.createElement("div");
   domIcon.id = "three-bar-icon";
@@ -168,7 +183,8 @@ function createIcon(metrics) {
   iconWrapper.id = "icon-wrapper";
   iconWrapper.innerHTML = iconSVG;
   iconWrapper.addEventListener("click", () => {
-    document.getElementsByClassName("hidden-legend")[0].classList.toggle("hidden-legend-v");
+    document.getElementsByClassName("hidden-legend")[0]
+      .classList.toggle("hidden-legend-v");
   })
   domIcon.append(iconWrapper);
   domIcon.style.display = "none";
@@ -270,12 +286,8 @@ function hideCursor(e) {
 function updateProgressBar(p, i, m, r) {
   let arr = m[i];
   let str = "matrix(";
-  arr.forEach(n => {
-    let nstr = n * r + ",";
-    str += nstr;
-  })
-  str = str.substring(0, str.length - 1);
-  str += ")";
+  arr.forEach(n => str += (n * r) + ",");
+  str = str.substring(0, str.length - 1) + ")";
   //console.log(str);
   p.style.transform = str;
 }
