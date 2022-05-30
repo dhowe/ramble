@@ -97,19 +97,18 @@ function updateInfo() {
   domStats.innerHTML = data;
 
   progressBars.forEach((p, i) => {
-    let num = 0;
-    let barname = affinityLabels[i];
-    if (updating) {
-      if (barname === 'free') {
+    let num = 0, label = affinityLabels[i];
+    if (reader.reading) {
+      if (label === 'free') {
         num = 100;
-      } else if (barname === 'shared') {
+      } else if (label === 'shared') {
         num = parseFloat(affvals.shared) + parseFloat(affvals[domain === "rural" ? "urban" : "rural"]);
       } else {
-        num = affvals[barname];
+        num = affvals[label];
       }
     }
     p.animate(num / 100, {
-      duration: barname === 'free' ? -100 : 3000
+      duration: label === 'free' ? -100 : 3000
     }, () => 0/*no-op*/);
   });
 }
