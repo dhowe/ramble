@@ -1413,7 +1413,7 @@ let cache = {
     "yourself"
   ],
   "hearing": [
-    'appearing', 'cheering', 'clearing', 'commandeering', 'disappearing', 'domineering', 'engineering', 'fearing', 'gearing', 'jeering', 'nearing', 'peering', 'pioneering', 'premiering', 'profiteering', 'racketeering', 'reappearing', 'rearing', 'searing', 'smearing', 'sneering', 'spearing', 'steering', 'veering', 'volunteering', 'bearing'
+    'appearing', 'cheering', 'clearing', 'disappearing', 'jeering', 'peering', 'premiering', 'rearing', 'searing', 'smearing', 'sneering', 'steering',  'bearing'
   ],
   "call": [
     "calf",
@@ -1456,24 +1456,16 @@ let cache = {
     "militant"
   ],
   "tearing": [
-    "towing",
     "fearing",
-    "bearing",
     "tiring",
-    "miring",
-    "hiring",
-    "toying",
     "hearing",
     "tying",
     "teasing",
     "searing",
     "trying",
-    "touring",
     "nearing",
     "wearing",
-    "gearing",
-    "rearing",
-    "roughing"
+    "rearing"
   ],
   "opening": [
     "sponging",
@@ -1511,25 +1503,17 @@ let cache = {
     "mislead"
   ],
   "suppress": [
-    "largesse",
     "distress",
     "impress",
-    "recess",
     "bless",
     "express",
-    "mess",
-    "acquiesce",
     "confess",
     "dress",
-    "digress",
     "stress",
-    "redress",
     "caress",
-    "guess",
     "dispossess",
     "oppress",
     "possess",
-    "coalesce",
     "repress"
   ],
   "expressed": [
