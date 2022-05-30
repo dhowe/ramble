@@ -27,10 +27,7 @@ function keyhandler(e) {
     reader.unpauseThen(update);
     console.log('[KEYB] skip-delay');
   }
-
-  if (production) return; // only I/D keys for prod
-
-  if (e.code === 'KeyL') {
+  else if (e.code === 'KeyL') {
     logging = !logging;
     console.log('[KEYB] logging: ' + logging);
   }
@@ -38,7 +35,10 @@ function keyhandler(e) {
     verbose = !verbose;
     console.log('[KEYB] verbose: ' + verbose);
   }
-  else if (e.code === 'KeyH') {
+
+  if (production) return; // only I/D keys for prod
+
+  if (e.code === 'KeyH') {
     highlights = !highlights;
     if (!highlights) {
       Array.from(spans).forEach(e => {
