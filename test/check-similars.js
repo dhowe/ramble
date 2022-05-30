@@ -143,4 +143,4 @@ function lookupWord(word, pos, forcePos = 0) {
 console.log(RiTa.untokenize(sources.rural));
 console.log(RiTa.untokenize(sources.urban));
 //console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
-lookupWord('several');//, 'jj', true);
+lookupWord('hearing');//, 'jj', true);

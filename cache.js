@@ -1,4 +1,4 @@
-let cache={
+let cache = {
   "time": [
     "slime",
     "climb",
@@ -78,7 +78,6 @@ let cache={
     "rakish",
     "garish",
     "ready",
-    "riding",
     "bearish",
     "leaded",
     "faddish"
@@ -97,26 +96,20 @@ let cache={
     "good"
   ],
   "illumination": [
-    "importation",
     "illustration",
     "insemination",
     "occupation",
-    "taxation",
     "radiation",
-    "quotation",
     "depreciation",
     "trepidation",
-    "excavation",
     "rejuvenation",
     "rumination",
     "capitalization",
     "hallucination",
     "classification",
     "vegetation",
-    "hyperinflation",
     "industrialization",
-    "oxidation",
-    "cessation"
+    "oxidation"
   ],
   "comes": [
     "plumbs",
@@ -132,8 +125,7 @@ let cache={
     "copes",
     "homes",
     "codes",
-    "combs",
-    "cones"
+    "combs"
   ],
   "rest": [
     "bequest",
@@ -167,17 +159,13 @@ let cache={
   "spreads": [
     "screams",
     "sprawls",
-    "involveds",
     "leds",
     "embeds",
-    "endeds",
     "springs",
     "spares",
     "sprains",
     "streams",
     "strides",
-    "increaseds",
-    "launcheds",
     "shreds",
     "prods",
     "beheads",
@@ -534,7 +522,6 @@ let cache={
     "tabling",
     "rallying",
     "fumbling",
-    "rabid",
     "crumbling",
     "damaging",
     "lumbering",
@@ -851,19 +838,15 @@ let cache={
   "prayer": [
     "care",
     "wear",
-    "billionaire",
-    "doctrinaire",
     "fair",
     "player",
     "snare",
     "heir",
     "hair",
     "compare",
-    "questionnaire",
     "prairie",
     "ware",
     "pair",
-    "millionaire",
     "stair",
     "press",
     "chair",
@@ -1287,7 +1270,6 @@ let cache={
     "bedding",
     "awing",
     "beating",
-    "geeing",
     "boning",
     "biting",
     "teeing",
@@ -1431,24 +1413,7 @@ let cache={
     "yourself"
   ],
   "hearing": [
-    "wrung",
-    "hung",
-    "jeered",
-    "sprung",
-    "hinged",
-    "beard",
-    "harried",
-    "horned",
-    "mirrored",
-    "veered",
-    "neared",
-    "wearied",
-    "cheered",
-    "peered",
-    "hearten",
-    "heart",
-    "harangued",
-    "strung"
+    'appearing', 'cheering', 'clearing', 'commandeering', 'disappearing', 'domineering', 'engineering', 'fearing', 'gearing', 'jeering', 'nearing', 'peering', 'pioneering', 'premiering', 'profiteering', 'racketeering', 'reappearing', 'rearing', 'searing', 'smearing', 'sneering', 'spearing', 'steering', 'veering', 'volunteering', 'bearing'
   ],
   "call": [
     "calf",
@@ -1503,12 +1468,10 @@ let cache={
     "teasing",
     "searing",
     "trying",
-    "toughing",
     "touring",
     "nearing",
     "wearing",
     "gearing",
-    "wering",
     "rearing",
     "roughing"
   ],
@@ -1606,7 +1569,6 @@ let cache={
     "living",
     "sawing",
     "looking",
-    "lemming",
     "lighting",
     "gnawing"
   ],
@@ -1793,8 +1755,7 @@ let cache={
     "hawking",
     "waking",
     "working",
-    "whacking",
-    "walling"
+    "whacking"
   ],
   "falls": [
     "fouls",
@@ -1882,7 +1843,6 @@ let cache={
     "dimly"
   ],
   "passing": [
-    "grassing",
     "amassing",
     "parsing",
     "paving",
@@ -1893,10 +1853,8 @@ let cache={
     "panning",
     "pausing",
     "gassing",
-    "paling",
     "pacing",
     "pissing",
-    "palling",
     "pasting"
   ],
   "through": [
