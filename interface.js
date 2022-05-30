@@ -81,15 +81,15 @@ function keyhandler(e) {
 function updateInfo() {
   let { updating, domain, outgoing, legs, maxLegs } = state;
 
-  if (domStats.style.display === 'block') { // stats panel open?
+  // compute the affinities
+  let affvals = Object.fromEntries(Object.entries(affinities())
+    .map(([k, raw]) => {
+      let fmt = (raw * 100).toFixed(2);  // pad
+      while (fmt.length < 5) fmt = '0' + fmt;
+      return [k, fmt];
+    }));
 
-    // compute the affinities
-    let affvals = Object.fromEntries(Object.entries(affinities())
-      .map(([k, raw]) => {
-        let fmt = (raw * 100).toFixed(2);  // pad
-        while (fmt.length < 5) fmt = '0' + fmt;
-        return [k, fmt];
-      }));
+  if (domStats.style.display === 'block') { // stats panel open?
 
     // update the #stats panel
     let data = 'Domain: ' + domain;
@@ -97,10 +97,14 @@ function updateInfo() {
     data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
     data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
     data += ' shared=' + affvals.shared + ' free=' + affvals.free;
+    
+    if (!production) data += ` Line=${reader.currentLine()}`;
+
     if (typeof performance !== undefined && performance.memory) {
       let mem = performance.memory.usedJSHeapSize; // js heap
-      data += ` [mem=${(mem / Math.pow(1000, 2)).toFixed(2)}]`;
+      data += ` [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
     }
+    
     domStats.innerHTML = data;
   }
 

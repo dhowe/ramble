@@ -10,21 +10,39 @@ const sources = {
   pos: ['in', 'dt', 'nn', 'dt', 'jj', 'vbz', 'vbn', ',', 'in', 'dt', 'jj', 'in', 'dt', 'jj', 'jj', 'nn', 'vbz', 'to', 'nn', ',', 'rb', 'rb', 'nns', 'in', 'in', 'dt', 'nn', 'cc', 'nn', 'in', 'dt', 'nns', 'in', 'dt', 'rb', 'vbg', 'nn', 'vbz', ',', 'prp', 'cc', 'prp', 'md', 'vbp', 'vbn', 'in', 'in', 'jj', 'in', 'rb', 'jjr', 'nns', 'in', 'dt', 'nn', 'cc', 'in', 'dt', 'nns', ',', 'in', 'cc', 'in', 'dt', 'cc', 'in', 'nn', ',', 'rb', 'jj', ',', 'nn', 'in', 'rb', 'jj', 'jj', 'nns', ',', 'in', 'in', 'dt', 'nns', 'md', 'vb', 'nns', 'in', 'nn', 'in', 'rb', 'prp$', 'nns', ',', 'vbn', 'in', 'nns', ',', 'vbp', 'rb', 'jjr', 'vb', 'nns', 'in', 'jj', 'rb', 'jj', ':', 'rb', 'in', 'cc', 'in', 'dt', 'nn', ',', 'in', 'dt', 'nn', 'nn', ',', 'in', 'nn', 'in', 'nn', ',', 'wrb', 'dt', 'nns', 'vbp', 'rb', 'vbg', ',', 'in', 'cc', 'wrb', 'dt', 'jj', 'nns', 'vbp', 'vbg', 'prp$', 'nns', 'cc', 'vbz', ',', 'in', 'prp$', 'jj', 'nns', 'in', 'nn', ',', 'in', 'dt', 'nns', 'rb', 'vb', ',', 'in', 'jj', 'nns', 'in', 'nn', ',', 'rbs', 'rb', 'in', 'nn', ',', 'in', 'nn', ',', 'to', 'vb', ',', 'to', 'vb', 'vbg', 'vbd', ',', 'to', 'vb', 'to', 'vb', 'vbd', 'jj', 'rb', 'in', 'dt', 'nn', 'wrb', 'prp', 'cc', 'prp', 'vbp', 'rb', 'vbd', 'to', 'vb', 'cc', 'wrb', 'prp', 'md', 'rb', 'rb', 'cc', 'rb', 'vbp', 'vbn', 'dt', 'jj', 'vbn', 'nn', ',', 'cc', 'cd', 'dt', ',', 'cc', 'vbd', 'cc', 'vbn', 'prp', 'in', 'dt', 'vbg', 'cc', 'vb', 'in', 'jj', 'nns', ',', 'cc', 'vbd', 'in', 'jj', 'nn', ',', 'jj', 'cc', 'jj', ',', 'dt', 'cd', 'vbg', 'cc', 'nn', 'cc', 'vbg', 'in', 'dt', 'nn', 'in', 'prp', 'to', 'vb', ',', 'rb', 'prp', 'vbp', 'dt', 'jj', 'in', 'md', 'vbp', 'vbn', 'dt', 'nn', 'cc', 'nn', 'cc', 'nn', 'cc', 'nn', 'rb', 'in', 'prp', 'cc', 'prp', 'md', 'vb', 'in', 'dt', 'nn', ',', 'dt', 'in', 'cc', 'in', 'vb', ',', 'cc', 'rb', 'jj', ';', 'cc', 'dt', 'jj', ',', 'dt', 'jj', 'nn', 'in', 'dt', 'jj', ',', 'dt', 'nn', ',', 'in', 'prp', 'vbp', 'vbd', 'in', 'vbg', ',', 'prp', 'vbz', 'in', 'prp', 'cc', 'vbz', 'prp', 'in', 'nn', 'in', 'in', 'dt', 'nn', 'prp', 'vbp', 'dt', 'cc', 'rb', 'rb', ',', 'rb', 'rb', 'vbg', 'in', 'cc', 'in', 'cc', 'in', 'dt', 'nn', ',', 'in', 'dt', 'nns', 'in', 'dt', 'nns', ',', 'in', 'dt', 'nn', ',', 'in', 'dt', 'jj', 'in', 'prp$', 'nn', 'vbz', ',', 'vbd', ',', 'vbn', ',', 'rb', 'vbn', ',', 'rb', 'rb', 'vbn', 'cc', ',', 'in', 'vbg', 'cc', 'vbg', 'in', 'dt', 'nns', ',', 'vbg', 'in', 'dt', 'vbg', 'jj', 'in', 'vbd', ',', 'nn', 'vbn', 'nn', 'in', 'prp$', 'nn', ',', 'vbd']
 };
 
-let overrides = {
-  avoid: ['elude', 'escape', 'evade'],
-  neighbors: ['brothers', 'brethren', 'fellows'],
-  rending: ['ripping', 'cleaving', 'rupturing', 'splitting', 'severing'],
-  inhuman: ['grievous', 'grim', 'hard', 'heavy', 'onerous', 'oppressive', 'rough', 'rugged', 'severe', 'austere', 'inclement', 'intemperate'],
-  sometimes: ['occasionally', 'intermittently', 'periodically', 'recurrently', 'infrequently', 'rarely', 'irregularly', 'sporadically', 'variously'],
-  adventure: ['experience', 'exploit', 'occasion', 'ordeal', 'venture', 'expedition', 'mission'],
-  unfamiliar: ['unconventional', 'pioneering', 'unaccustomed', 'unprecedented'],
-  coiled: ['twisted', 'twisting', 'curling', 'curving', 'serpentine', 'corkscrewed', 'jagged', 'meandering', 'spiraled'],
-  particularly: ['specifically', 'generally', 'aptly'],
-  unsettled: ['unresolved', 'uncertain', 'undecided', 'rootless'],
-  dip: ['blip', 'chip', 'clip', 'drip', 'grip', 'microchip', 'quip', 'roundtrip', 'ship', 'slip', 'snip', 'strip', 'trip', 'whip'],
-  set: ['caressed', 'digressed', 'forget', 'progressed', 'redressed', 'regressed', 'seat'],
-  sunset: ['dawning', 'daybreak', 'daylight', 'morning', 'sunrise', 'sunup', 'daytime', 'forenoon', 'crepuscule', 'dusk', 'evening', 'gloaming', 'night', 'nightfall', 'sundown', 'twilight', 'subset', 'inset', 'alphabet', 'mindset', 'quintet']
-};
+let similarOverrides = {
+  "adventure": ["inquiry", "hope", "heritage", "misadventure", "choice", "invention", "exploration", "reconciliation", "lust", "creation", "learning", "mourning"],
+  "animal": ["brute", "beastly", "brutal", "brutish", "bestial", "fleshy", "carnal", "corporeal", "somatic", "mental", "immaterial", "rational", "irrational", "minimal"],
+  "avoid": ["elude", "escape", "evade", "delay"],
+  "beyond": ["above", "outside", "before", "behind", /*"within"*/],
+  "building": ["assembling", "erecting", "constructing", "forming", "manufacturing", "producing", "casting", "composing", "contriving", "engineering", "fabricating", "framing", "modeling", "initiating", "formulating", "boosting", "developing", "improving", "strengthening", "amplifying", "increasing", "compounding", "escalating", "multiplying", "abridging", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding", "guiding", "glazing"],
+  "circadian": ["rhythmic", "regular", "circassian", "crepuscular", "orcadian", "circular", "cyclical"],
+  "coiled": ["twisted", "twisting", "bent", "broken", "serpentine", "corkscrewed", "jagged", "barbed"],
+  "desperately": ["badly", "dangerously", "fiercely", "greatly", "perilously", "seriously", "carelessly", "dramatically", "gravely", "hysterically", "fearfully", "hopelessly", "shockingly", "appallingly", "trivially", "temporally", "irreparably", "perfectly", "generally", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
+  "dip": ["swim", "clip", "drip", "quip", "trip", "slip", "snip", "strip", "whip", "bath", "submersion", "plunge", "shower", "rinse"],
+  "familiar": ["casual", "mundane", "recognizable", "intimate", "unfamiliar", "unknown", "obscure", "unusual", "similar", "familial", "filial", "crepuscular", "dusky", "quotidian", "peculiar"],
+  "inhuman": ["onerous", "oppressive", "human", "austere", "inclement", "intemperate", "otherwise"],
+  "marshaling": ["assembling", "mobilizing", "aligning", "arranging", "collecting", "conducting", "organizing", "guiding", "directing", "distributing", "gathering", "grouping", "leading", "ordering", "rallying", "dispersing", "disturbing", "dividing", "mixing", "neglecting", "scattering", "separating", "spreading", "determining", "encircling"],
+  "might": ["could", "would", "should", "must"],
+  "mildly": ["delicately", "indifferently", "lightly", "gently", "moderately", "quietly", "blandly", "calmly", "compassionately", "gingerly", "patiently", "softly", "tolerantly", "tenderly", "harshly", "roughly", "violently", "wildly", "fiercely", "ferociously", "brutally", "critically"],
+  "most": ["least", "mostly", "must"],
+  "neighbors": ["brothers", "sisters", "parents", "children", "horses", "elders"],
+  "particularly": ["specifically", "generally", "naturally", "often", "commonly"],
+  "rending": ["ripping", "cleaving", "rupturing", "splitting", "severing", "cutting"],
+  "set": ["digressed", "progressed", "sought", "stepped", "regressed", "transgressed"],
+  "simply": ["merely", "basically", /*"just",*/ "barely", "dimly", "finally", "definitively"],
+  "since": ["because", /*"whereas",*/ "hence", "although"],
+  "singular": ["particular", "exclusive", "solitary", "regular", "insular", "angular", "subtle", "silent"],
+  "sometimes": ["occasionally", "intermittently", "periodically", "infrequently", "rarely", "sporadically", "variously"],
+  "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
+  "sunset": ["dawn", "daybreak", "daylight", "sunrise", "sunup", "dusk", "night", "nightfall", "sundown", "twilight"],
+  "terror": ["fear", "texture", "torture", "timbre", "desolation"],
+  "unfamiliar": ["unconventional", "pioneering", "unprecedented", "bizarre", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
+  "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
+  "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
+  "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
+  "will": ["would", "must", "since", "again", "finally", "ultimately"],
+}
 
 let state = { sources, ignores, stops, minWordLength }, similarCache = {};
 
@@ -66,7 +84,7 @@ function quotify(arr) {
 function isReplaceable(word, state) {
   //console.log(state);
   let { stops, minWordLength } = state;
-  return (word.length >= minWordLength || word in overrides)
+  return (word.length >= minWordLength || word in similarOverrides)
     && !stops.includes(word);
 }
 
@@ -122,6 +140,7 @@ function lookupWord(word, pos, forcePos = 0) {
 
 }
 
-//console.log(RiTa.untokenize(sources.rural));
+console.log(RiTa.untokenize(sources.rural));
+console.log(RiTa.untokenize(sources.urban));
 //console.log(sources.rural.filter((w, i) => w == 'spreads' && console.log(i, w, sources.pos[i])));
-lookupWord('will');//, 'jj', true);
+lookupWord('several');//, 'jj', true);
