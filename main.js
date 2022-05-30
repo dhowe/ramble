@@ -344,11 +344,9 @@ function updateState() {
 function replace() {
   let { domain } = state;
   let shadow = shadowTextName();
-
-  // don't pick ids on reader's current line (#110)
-  let readerLineIdx = reader ? reader.currentLine() : -1;
-  let idx = RiTa.random(repids.filter(id => !reader || lineIdFromWordId(id) !== readerLineIdx));
-  let dword = last(history[domain][idx]), sword = last(history[shadow][idx]);
+  let idx = RiTa.random(repids.filter(id => !reader || !beingRead(id)));
+  let dword = last(history[domain][idx]);
+  let sword = last(history[shadow][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
 
   worker.postMessage({ event: 'lookup', data }); // do similar search
@@ -361,11 +359,10 @@ function postReplace(e) {
 
   if (idx < 0) return writeCache(e.data); // write cache here
 
-  let pos = sources.pos[idx];
+  let shadow = shadowTextName();
   let lineIdx = lineIdFromWordId(idx);
-  let delayMs, shadow = shadowTextName();
-  let beingRead = reader.currentLine() === lineIdx;
-  if (!beingRead && dsims.length && ssims.length) {
+  let delayMs, pos = sources.pos[idx];
+  if (dsims.length && ssims.length && !beingRead(idx)) {
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);

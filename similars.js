@@ -119,7 +119,7 @@ function findSimilars(idx, word, pos, state, timestamp) {
     }
     if (logCacheEntries) {
       let elapsed = Date.now() - timestamp;
-      if (state.logging) console.log(`[CACHE] @${idx} ${word}/${pos} -> (${result.length}):`
+      console.log(`[CACHE] @${idx} ${word}/${pos} -> (${result.length}):`
         + ` ${trunc(result)} :: added ${newEntries} meta,`
         + ` cache-sizes: ${similarLRU.size()}/${metaLRU.size()} (${elapsed} ms)`);
     }
