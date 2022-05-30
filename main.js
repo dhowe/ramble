@@ -377,18 +377,11 @@ function postReplace(e) {
 
   if (idx < 0) return writeCache(e.data); // write cache here
 
-<<<<<<< HEAD
-  let shadow = shadowTextName();
-  let lineIdx = lineIdFromWordId(idx);
-  let delayMs, pos = sources.pos[idx];
-  if (dsims.length && ssims.length && !beingRead(idx)) {
-=======
   let pos = sources.pos[idx];
   let lineIdx = lineIdFromWordId(idx);
   let delayMs, shadow = shadowTextName();
   let beingRead = reader.currentLine() === lineIdx;
   if (!beingRead && dsims.length && ssims.length) {
->>>>>>> main
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
