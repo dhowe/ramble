@@ -5,10 +5,13 @@ let walks = { short: 2, long: 16 };
 let stepsPerLeg = 50;
 
 // time between word replacements (ms)
-let updateDelay = 800
+let updateDelay = 800;
 
 // time on new text before updates (ms) 
 let readDelay = stepsPerLeg * updateDelay;
+
+// time before reader begins (ms)
+let initialDelay = 3000;
 
 // min/max/start CSS word-spacing (em)
 let minWordSpace = -0.1, maxWordSpace = 0.5, initialWordSpace = 0.1;
@@ -72,8 +75,11 @@ let ignores = ["leding", "expecteds", "toing", "reporteds", "jerkies", "trite", 
 // set true to generate a new cache file
 let downloadCache = false;
 
+// logging is true unless production
+let logging = !production;
+
 // keyboard toggle options
-let logging = true, verbose = false, highlights = false, hideLegend = true, highlightWs = false, shadowMode = false;
+let verbose = false, highlights = false, hideLegend = true, highlightWs = false, shadowMode = false;
 
 let sources = {
   rural: ['by', 'the', 'time', 'the', 'light', 'has', 'faded', ',', 'as', 'the', 'last', 'of', 'the', 'reddish', 'gold', 'illumination', 'comes', 'to', 'rest', ',', 'then', 'imperceptibly', 'spreads', 'out', 'over', 'the', 'moss', 'and', 'floor', 'of', 'the', 'woods', 'on', 'the', 'westerly', 'facing', 'lakeside', 'slopes', ',', 'you', 'or', 'I', 'will', 'have', 'set', 'out', 'on', 'several', 'of', 'yet', 'more', 'circuits', 'at', 'every', 'time', 'and', 'in', 'all', 'directions', ',', 'before', 'or', 'after', 'this', 'or', 'that', 'circadian', ',', 'usually', 'diurnal', ',', 'event', 'on', 'mildly', 'rambling', 'familiar', 'walks', ',', 'as', 'if', 'these', 'exertions', 'might', 'be', 'journeys', 'of', 'adventure', 'whereas', 'always', 'our', 'gestures', ',', 'guided', 'by', 'paths', ',', 'are', 'also', 'more', 'like', 'traces', 'of', 'universal', 'daily', 'ritual', ':', 'just', 'before', 'or', 'with', 'the', 'dawn', ',', 'after', 'a', 'morning', 'dip', ',', 'in', 'anticipation', 'of', 'breakfast', ',', 'whenever', 'the', 'fish', 'are', 'still', 'biting', ',', 'as', 'and', 'when', 'the', 'industrious', 'creatures', 'are', 'building', 'their', 'nests', 'and', 'shelters', ',', 'after', 'our', 'own', 'trials', 'of', 'work', ',', 'while', 'the', 'birds', 'still', 'sing', ',', 'in', 'quiet', 'moments', 'after', 'lunch', ',', 'most', 'particularly', 'after', 'dinner', ',', 'at', 'sunset', ',', 'to', 'escape', ',', 'to', 'avoid', 'being', 'found', ',', 'to', 'seem', 'to', 'be', 'lost', 'right', 'here', 'in', 'this', 'place', 'where', 'you', 'or', 'I', 'have', 'always', 'wanted', 'to', 'be', 'and', 'where', 'we', 'might', 'sometimes', 'now', 'or', 'then', 'have', 'discovered', 'some', 'singular', 'hidden', 'beauty', ',', 'or', 'one', 'another', ',', 'or', 'stumbled', 'and', 'injured', 'ourselves', 'beyond', 'the', 'hearing', 'and', 'call', 'of', 'other', 'voices', ',', 'or', 'met', 'with', 'other', 'danger', ',', 'animal', 'or', 'inhuman', ',', 'the', 'one', 'tearing', 'and', 'rending', 'and', 'opening', 'up', 'the', 'darkness', 'within', 'us', 'to', 'bleed', ',', 'yet', 'we', 'suppress', 'any', 'sound', 'that', 'might', 'have', 'expressed', 'the', 'terror', 'and', 'passion', 'and', 'horror', 'and', 'pain', 'so', 'that', 'I', 'or', 'you', 'may', 'continue', 'on', 'this', 'ramble', ',', 'this', 'before', 'or', 'after', 'walk', ',', 'and', 'still', 'return', ';', 'or', 'the', 'other', ',', 'the', 'quiet', 'evacuation', 'of', 'the', 'light', ',', 'the', 'way', ',', 'as', 'we', 'have', 'kept', 'on', 'walking', ',', 'it', 'falls', 'on', 'us', 'and', 'removes', 'us', 'from', 'existence', 'since', 'in', 'any', 'case', 'we', 'are', 'all', 'but', 'never', 'there', ',', 'always', 'merely', 'passing', 'through', 'and', 'by', 'and', 'over', 'the', 'moss', ',', 'under', 'the', 'limbs', 'of', 'the', 'evergreens', ',', 'beside', 'the', 'lake', ',', 'within', 'the', 'sound', 'of', 'its', 'lapping', 'waves', ',', 'annihilated', ',', 'gone', ',', 'quite', 'gone', ',', 'now', 'simply', 'gone', 'and', ',', 'in', 'being', 'or', 'walking', 'in', 'these', 'ways', ',', 'giving', 'up', 'all', 'living', 'light', 'for', 'settled', ',', 'hearth', 'held', 'fire', 'in', 'its', 'place', ',', 'returned', '…'],
@@ -88,7 +94,8 @@ let state = {
   stepMode: false,
   updating: false,
   loopId: 0,
-  legs: 0
+  legs: 0,
+  logging
 };
 
 let lex = RiTa.lexicon();
@@ -227,8 +234,8 @@ function doLayout() {
   // setup history and handlers
   Object.keys(history).map(k => sources[k].map((w, i) => history[k][i] = [w]));
   document.addEventListener('keyup', keyhandler);
-  console.log('[INFO] Keys -> (h)ighlight (i)nfo s(t)ep (l)og (v)erbose\n'
-    + ' '.repeat(15) + 'un(d)elay (c)olor-key (w)s-classes (e)nd (s)hadow');
+  log('Keys -> (h)ighlight (i)nfo s(t)ep (l)og (v)erbose\n'
+    + ' '.repeat(7) + 'un(d)elay (c)olor-key (w)s-classes (e)nd (s)hadow');
 
   // init resize handler
   window.onresize = () => {
@@ -282,7 +289,8 @@ function ramble() {
 
     if (!worker) {
       worker = new Worker("similars.js");
-      let data = { overrides: similarOverrides, stops, ignores, sources, minWordLength };
+      let overrides = similarOverrides;
+      let data = { overrides, state, stops, ignores, sources, minWordLength };
       worker.postMessage({ event: 'init', data })
       worker.onmessage = postReplace;
     }
@@ -291,9 +299,17 @@ function ramble() {
     spans = document.getElementsByClassName("word");
 
     // create/start the reader
-    reader = new Reader(spans);
-    reader.pauseThen(update, readDelay);
-    reader.start();
+    setTimeout(() => {
+      reader = new Reader(spans);
+      reader.pauseThen(update, readDelay);
+      reader.start();
+
+      log('Starting reader...');
+      domLegend.style.display = 'block';
+      threeBarIcon.style.display = 'block';
+      updateInfo();
+
+    }, initialDelay);
   }
 
   if (updating) return outgoing ? replace() : restore();
@@ -344,9 +360,11 @@ function updateState() {
 function replace() {
   let { domain } = state;
   let shadow = shadowTextName();
-  let idx = RiTa.random(repids.filter(id => !reader || !beingRead(id)));
-  let dword = last(history[domain][idx]);
-  let sword = last(history[shadow][idx]);
+
+  // don't pick ids on reader's current line (#110)
+  let readerLineIdx = reader ? reader.currentLine() : -1;
+  let idx = RiTa.random(repids.filter(id => !reader || lineIdFromWordId(id) !== readerLineIdx));
+  let dword = last(history[domain][idx]), sword = last(history[shadow][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
 
   worker.postMessage({ event: 'lookup', data }); // do similar search
@@ -359,10 +377,18 @@ function postReplace(e) {
 
   if (idx < 0) return writeCache(e.data); // write cache here
 
+<<<<<<< HEAD
   let shadow = shadowTextName();
   let lineIdx = lineIdFromWordId(idx);
   let delayMs, pos = sources.pos[idx];
   if (dsims.length && ssims.length && !beingRead(idx)) {
+=======
+  let pos = sources.pos[idx];
+  let lineIdx = lineIdFromWordId(idx);
+  let delayMs, shadow = shadowTextName();
+  let beingRead = reader.currentLine() === lineIdx;
+  if (!beingRead && dsims.length && ssims.length) {
+>>>>>>> main
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);

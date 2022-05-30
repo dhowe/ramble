@@ -10,25 +10,23 @@
 
   <script src="lib/rita.js"></script>
   <script>
-    // production or development tag
-    let production = location.hostname === 'rednoise.org';
-    let tag = production ? '(prod)' : '(dev)';
+    // production or development
+    const phosts = ['rednoise.org', 'dhowe.github.io'];
+    const production = phosts.includes(location.hostname);
+    const tag = production ? '(prod)' : '(dev)';
 
-    // kiosk or regular
-    let kiosk = new URLSearchParams(window.location.search).has('kiosk');
+    // kiosk or regular mode
+    const kiosk = new URLSearchParams(window.location.search).has('kiosk');
 
-    // Load/display the app version number
+    // load/display app version
     fetch('package.json').then(res => res.json())
       .then(pkg => console.log(`[INFO] ${pkg.name} v${pkg.version} ${tag}`))
       .catch(e => console.log('[WARN] No Version!', e));
 
-    // about-dialog
-    function closeAbout(){
+    function closeAbout() {
       document.getElementById("about-container").style.display = 'none';
-
       document.getElementById("icon-container").classList.remove("display-none");
       document.getElementById("legend-container").classList.remove("display-none")
-
     }
   </script>
   <script src="lib/progressbar.js"></script>
@@ -46,7 +44,7 @@
 <body>
   <div id="center-wrapper">
     <div id="centered-container">
-      <div id = "about-container">
+      <div id="about-container">
         <div id="about-background"></div>
         <div id="about" class="modal">
           <div id="aboutTitle">Preoccupations</div>
