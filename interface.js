@@ -102,7 +102,7 @@ function updateInfo() {
 
     if (typeof performance !== undefined && performance.memory) {
       let mem = performance.memory.usedJSHeapSize; // js heap
-      data += ` [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
+      data += `  [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
     }
     
     domStats.innerHTML = data;
