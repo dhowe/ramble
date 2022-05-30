@@ -147,11 +147,11 @@ function createLegend(metrics) {
   <rect style="fill: ${visBandColors[3]}" id="box" x="0" y="0" width="20" height="20"/>
   </svg> <span> found<span></div>
   <div> <div id="about-button">
-  <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 50 50">
-  <circle cx="23" cy="25" r = "23" fill="#e6e6e6" />
-  <text x="23" y="25" text-anchor="middle" fill="#B3B3B3" font-size="1.8em" dy=".35em">?</text>
+  <svg xmlns="http://www.w3.org/2000/svg" width="23" height="25" viewBox="0 0 50 50">
+  <circle cx="23" cy="28" r = "23" fill="#e6e6e6" />
+  <text x="23" y="28" text-anchor="middle" fill="#B3B3B3" font-size="1.8em" dy=".35em">?</text>
   </svg>
-  </button></div>`;23
+  </button></div>`;
 
   if (hideLegend) {
     legendContent.classList.add('hidden-legend')
