@@ -231,8 +231,8 @@ function doLayout() {
   // setup history and handlers
   Object.keys(history).map(k => sources[k].map((w, i) => history[k][i] = [w]));
   document.addEventListener('keyup', keyhandler);
-  log('[INFO] Keys -> (h)ighlight (i)nfo s(t)ep (l)og (v)erbose\n'
-    + ' '.repeat(14) + 'un(d)elay (c)olor-key (w)s-classes (e)nd (s)hadow');
+  log('Keys -> (h)ighlight (i)nfo s(t)ep (l)og (v)erbose\n'
+    + ' '.repeat(7) + 'un(d)elay (c)olor-key (w)s-classes (e)nd (s)hadow');
 
   // init resize handler
   window.onresize = () => {
