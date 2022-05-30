@@ -94,6 +94,11 @@ function updateInfo() {
   data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
   data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
   data += ' shared=' + affvals.shared + ' free=' + affvals.free;
+  if (typeof performance !== undefined && performance.memory) {
+    let mem = performance.memory.usedJSHeapSize; // js heap
+    data += ` [heap=${(mem / Math.pow(1000, 2)).toFixed(2)}]`;
+  }
+
   domStats.innerHTML = data;
 
   progressBars.forEach((p, i) => {
@@ -103,7 +108,8 @@ function updateInfo() {
       if (barname === 'free') {
         num = 100;
       } else if (barname === 'shared') {
-        num = parseFloat(affvals.shared) + parseFloat(affvals[domain === "rural" ? "urban" : "rural"]);
+        num = parseFloat(affvals.shared)
+          + parseFloat(affvals[domain === "rural" ? "urban" : "rural"]);
       } else {
         num = affvals[barname];
       }
