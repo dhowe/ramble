@@ -1279,7 +1279,6 @@ let cache = {
   ],
   "wanted": [
     "decanted",
-    "covenanted",
     "wafted",
     "wasted",
     "waited",
@@ -1300,9 +1299,7 @@ let cache = {
     "maiden",
     "leaden",
     "written",
-    "done",
     "redone",
-    "laden",
     "given",
     "undone",
     "middle",

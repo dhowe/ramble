@@ -118,7 +118,7 @@ let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = false;
+let radius = displayBounds.width / 2, dbug = true;
 
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
@@ -437,14 +437,13 @@ function restore() {
     // pick a changed word to step back
     let { word, idx } = RiTa.random(choices);
     let pos = sources.pos[idx];
-    let hist = history[domain][idx];
 
-    // select newest from history
-    hist.pop();
-    let next = hist[hist.length - 1];
+    // pop both histories
+    history[domain][idx].pop();
+    history[shadowTextName()][idx].pop();
 
-    history[shadowTextName()][idx].pop(); // stay in sync
-
+    // select newest from domain history
+    let next = last(history[domain][idx]);
     updateDOM(next, idx); // do replacement
 
     if ((logging && verbose) || stepMode) {
@@ -453,12 +452,13 @@ function restore() {
     }
   }
   else {
-    let id = repids.find(idx => history[domain][idx].length > 1);
-    let word = sources[domain][id], hist = history[domain][id];
-    console.error('[WARN] Invalid-state, num-mods:'
-      + numMods() + ' idx=' + id + '/' + word + ' history=', hist);
-    let invalidWord = history[domain][id].pop();
-    console.error('[FIX] repair by popping "' + invalidWord + '" hist=', hist);
+    let words = repids.filter(i => history[domain][i].length > 1).map(idx =>
+      ({ idx, word: sources[domain][idx], hist: history[domain][idx] })); // culprits
+    console.warn('[WARN] Nothing to restore, num-mods:' + numMods()
+      + ' idx=' + idx + '/' + word + ' history=', history[domain][idx]);
+    let invalidWord = history[domain][idx].pop();
+    console.error('[WARN] Repair by popping "' + invalidWord + '" hist=', hist);
+    console.error(repids.map(idx => ({ idx, word: displayWords[idx], hist: history[domain][idx] })));
   }
 
   if (updateState() && !state.stepMode) {

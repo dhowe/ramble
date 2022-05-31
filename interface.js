@@ -100,7 +100,7 @@ function updateInfo() {
     
     if (!production) data += ` Line=${reader.currentLine()}`;
 
-    if (typeof performance !== undefined && performance.memory) {
+    if (typeof performance !== 'undefined' && performance.memory) {
       let mem = performance.memory.usedJSHeapSize; // js heap
       data += `  [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
     }

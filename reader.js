@@ -35,8 +35,8 @@ class Reader {
 
     // line-based highlighter
     let lastSpan = this.spans[this.index - 1];
-    if (lastSpan !== undefined && (!lastSpan.nextSibling
-      || !lastSpan.nextSibling.nextSibling)) {
+    if (typeof lastSpan !== 'undefined'
+      && (!lastSpan.nextSibling || !lastSpan.nextSibling.nextSibling)) {
       return [lastSpan, this.spans[this.index]];
     }
 

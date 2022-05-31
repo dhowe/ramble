@@ -73,6 +73,7 @@ this.onmessage = function (e) {
 function generateCosimilars(word, sims, lru) {
   let numAdded = 0;
   let add = function (word, arr) {
+    if (typeof word === 'undefined') throw Error(word+'->'+sims);
     if (!arr.includes(word) && isReplaceable(word)) {
       arr.push(word);
       numAdded++;
@@ -216,7 +217,7 @@ class LRUCache {
   }
 
   get(key) {
-    if (!this.data.has(key)) return undefined;
+    if (!this.data.has(key)) return false; // ?
     let val = this.data.get(key);
     this.data.delete(key);
     this.data.set(key, val);

@@ -42,7 +42,7 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   @param: line: line element or line index
           wordSpacing: (optional) set the wordSpacing for calculation, number in em
 */
-const getLineWidth = function (line, wordSpacing = undefined) {
+const getLineWidth = function (line, wordSpacing) {
   // return value in scaleRatio = 1 (initial state)
   let lineEle = line instanceof HTMLElement ? line : document.getElementById("l" + line);
   let currentSpacing = lineEle.style.wordSpacing;
