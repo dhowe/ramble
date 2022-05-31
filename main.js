@@ -28,7 +28,7 @@ let visBandWidth = 3;
 // adjust word-spacing for initial text circle
 let adjustInitialWordspacing = true;
 
-// visualisation [ rural, urban, shared, free, initial ]
+// visualisation [ rural, urban, shared, found, initial ]
 let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
 
 // these override lookup values
@@ -67,7 +67,7 @@ let similarOverrides = {
 };
 
 // words considered un-replaceable
-let stops = ["also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
+let stops = ["several", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
 let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];

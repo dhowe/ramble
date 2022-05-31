@@ -1,14 +1,14 @@
-const affinityLabels = ['initial', 'free', 'shared', 'urban', 'rural'];
+const affinityLabels = ['initial', 'found', 'shared', 'urban', 'rural'];
 
 // affinities for visualization band and stats panel
 function affinities() {
-  let data = { rural: 0, urban: 0, shared: 0, free: 0 };
+  let data = { rural: 0, urban: 0, shared: 0, found: 0 };
   let current = unspanify();
   repids.forEach(idx => {
     let visible = current[idx];
     let rurMatch = sources.rural[idx] === visible;
     let urbMatch = sources.urban[idx] === visible;
-    if (!rurMatch && !urbMatch) data.free++;
+    if (!rurMatch && !urbMatch) data.found++;
     if (rurMatch && !urbMatch) data.rural++;
     if (!rurMatch && urbMatch) data.urban++;
     if (rurMatch && urbMatch) data.shared++;
@@ -96,7 +96,7 @@ function updateInfo() {
     data += '&nbsp;' + (updating ? (outgoing ? '⟶' : '⟵') : 'X');
     data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
     data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
-    data += ' shared=' + affvals.shared + ' free=' + affvals.free;
+    data += ' shared=' + affvals.shared + ' found=' + affvals.found;
     
     if (!production) data += ` Line=${reader.currentLine()}`;
 
@@ -111,7 +111,7 @@ function updateInfo() {
   progressBars.forEach((p, i) => {
     let num = 0, label = affinityLabels[i];
     if (reader.reading) {
-      if (label === 'free') {
+      if (label === 'found') {
         num = 100;
       } else if (label === 'shared') {
         num = parseFloat(affvals.shared) + parseFloat(affvals[domain === "rural" ? "urban" : "rural"]);
@@ -120,7 +120,7 @@ function updateInfo() {
       }
     }
     p.animate(num / 100, {
-      duration: label === 'free' ? -100 : 3000
+      duration: label === 'found' ? -100 : 3000
     }, () => 0/*no-op*/);
   });
 }
@@ -220,7 +220,7 @@ function createProgressBars(opts = {}) {
 
   progressBarsBaseMatrix = [
     [1, 0, 0, 1, 0, 0], // bg
-    [1, 0, 0, 1, 0, 0], // free
+    [1, 0, 0, 1, 0, 0], // found
     [-1, 0, 0, 1, initialMetrics.radius * 2, 0], //shared
     [-1, 0, 0, 1, initialMetrics.radius * 2, 0], //urban
     [1, 0, 0, 1, 0, 0], //rural
