@@ -35,8 +35,8 @@ class Reader {
 
     // line-based highlighter
     let lastSpan = this.spans[this.index - 1];
-    if (lastSpan !== undefined && (!lastSpan.nextSibling
-      || !lastSpan.nextSibling.nextSibling)) {
+    if (typeof lastSpan !== 'undefined'
+      && (!lastSpan.nextSibling || !lastSpan.nextSibling.nextSibling)) {
       return [lastSpan, this.spans[this.index]];
     }
 
@@ -50,8 +50,7 @@ class Reader {
 
     // the following would highlight a fixed number of words
     // with timeToRead delays for the leading word at this.index
-    // return this.spans.slice(
-    //this.index - this.numVisibleWords + 1, this.index + 1);
+    // return this.spans.slice(this.index - this.numVisibleWords + 1, this.index + 1);
   }
 
   step() {

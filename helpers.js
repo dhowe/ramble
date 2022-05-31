@@ -126,9 +126,11 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
     bound2 = bound1 - (step * direction);
     currentWidth = measureWidthCtx(newText, style.font, bound2 + "px");
 
-    let finalWidth = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? currentWidth : w1;
-    let finalWs = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? bound2 : bound1;
-    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100, finalWidth, finalWs, finalWs / initialMetrics.fontSize]
+    let wdiff = Math.abs(currentWidth - targetWidth);
+    let finalWidth = Math.abs(w1 - targetWidth) >= wdiff ? currentWidth : w1;
+    let finalWs = Math.abs(w1 - targetWidth) >= wdiff ? bound2 : bound1;
+    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100,
+      finalWidth, finalWs, finalWs / initialMetrics.fontSize];
   }
 
   return result;

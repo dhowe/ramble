@@ -31,7 +31,7 @@ let adjustInitialWordspacing = true;
 // visualisation [ rural, urban, shared, found, initial ]
 let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
 
-// these override lookup values
+// these override values found via lookup
 let similarOverrides = {
   "adventure": ["inquiry", "hope", "heritage", "misadventure", "choice", "invention", "exploration", "reconciliation", "lust", "creation", "learning", "mourning"],
   "again": ["since", "finally", "ultimately", "totally"],
@@ -40,10 +40,10 @@ let similarOverrides = {
   "bankside": ["implied", "outside", "untried", "applied", "inside", "upside", "allied", "banked", "broadside", "anchored"],
   "beyond": ["above", "outside", "before", "behind", /*"within"*/],
   "breakfast": ["broadcast", "repast", "supper", "impact", "breakage", "bondage"],
-  "building": ["assembling", "erecting", "constructing", "forming", "producing", "casting", "composing","fabricating", "framing", "modeling", "formulating", "developing", "improving", "strengthening", "compounding", "escalating", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding" ],
+  "building": ["assembling", "erecting", "constructing", "forming", "producing", "casting", "composing", "fabricating", "framing", "modeling", "formulating", "developing", "improving", "strengthening", "compounding", "escalating", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding"],
   "circadian": ["rhythmic", "regular", "circassian", "crepuscular", "orcadian", "circular", "cyclical"],
   "coiled": ["twisted", "twisting", "bent", "broken", "serpentine", "corkscrewed", "jagged", "barbed"],
-  "desperately": [ "dangerously", "fiercely", "perilously", "seriously", "carelessly", "gravely", "hysterically", "hopelessly", "shockingly", "trivially", "temporally", "irreparably", "perfectly", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
+  "desperately": ["dangerously", "fiercely", "perilously", "seriously", "carelessly", "gravely", "hysterically", "hopelessly", "shockingly", "trivially", "temporally", "irreparably", "perfectly", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
   "dip": ["swim", "clip", "drip", "quip", "trip", "slip", "snip", "strip", "whip", "bath", "submersion", "plunge", "shower", "rinse"],
   "familiar": ["casual", "mundane", "recognizable", "intimate", "unfamiliar", "unknown", "obscure", "unusual", "similar", "familial", "filial", "crepuscular", "dusky", "quotidian", "peculiar"],
   "infrequently": ["occasionally", "intermittently", "periodically", "sometimes", "rarely", "sporadically", "variously"],
@@ -63,11 +63,13 @@ let similarOverrides = {
   "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
   "sunset": ["dawn", "daybreak", "daylight", "sunrise", "sunup", "dusk", "night", "nightfall", "sundown", "twilight"],
   "terror": ["fear", "texture", "torture", "timbre", "desolation"],
-  "unfamiliar": [ "pioneering", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
+  "unfamiliar": ["pioneering", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
   "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
   "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
   "will": ["would", "must", "since", "again", "finally", "ultimately"],
+  "walk": ['stalk', 'talk', "redefinition", "exhibition", "omission", "exposition", "admission", "proposition", "commission", "juxtaposition", "extradition"],
+  "assault": [ "exposition", "admission", "proposition", "commission", "juxtaposition", "extradition", "attack"]
 };
 
 // words considered un-replaceable
@@ -156,7 +158,7 @@ function shadowRandom(wordIdx, similars) {
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, true, ['max', 'min']);
+    let res = widthChangePercentage(sim, wordIdx, true);
     if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
@@ -211,7 +213,7 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, false, ['max', 'min']);
+    let res = widthChangePercentage(sim, wordIdx, false);
     if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
@@ -390,7 +392,7 @@ function postReplace(e) {
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
     history[domain][idx].push(dnext);
-    let { wordSpaceEm, lineEle } = updateDOM(dnext, idx);
+    updateDOM(dnext, idx);
 
     // pick a random similar to store in shadow text
     let snext = contextualRandom(idx, sword, ssims, { isShadow: true });
@@ -401,18 +403,15 @@ function postReplace(e) {
     let ms = Date.now() - timestamp;
     delayMs = Math.max(1, updateDelay - ms);
     if ((logging && verbose) || stepMode) {
-      let style = window.getComputedStyle(lineEle);
-      let text = lineEle.firstChild.textContent;
       console.log(`${numMods()}) @${lineIdx}.${idx} `
         + `${dword}->${dnext}(${domain.substring(0, 1)}), `
         + `${sword}->${snext}(${shadow.substring(0, 1)}) `
-        + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(2)}`
-        + ` adjustedWidth=${measureWidthCtx(text, style.font, wordSpaceEm).toFixed(2)}`);
+        + `[${pos}] elapsed=${ms} delay=${delayMs}`);
     }
   }
   else {
     delayMs = 1;
-    let msg = `[SKIP] @${lineIdx}.${idx} [${pos}] `;
+    let msg = `[SKIP] replace @${lineIdx}.${idx} [${pos}] `;
     if (beingRead) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `None found for '${dword}' `;
     if (!ssims.length) msg += `None found for '${sword}' (shadow)`;
@@ -427,6 +426,7 @@ function restore() {
 
   let { domain, stepMode } = state;
 
+  let delayMs = updateDelay;
   let displayWords = unspanify();
 
   // get all possible restorations
@@ -439,23 +439,30 @@ function restore() {
 
     // pick a changed word to step back
     let { word, idx } = RiTa.random(choices);
+    let lineIdx = lineIdFromWordId(idx);
     let pos = sources.pos[idx];
-    let hist = history[domain][idx];
+    if (lineIdx !== reader.currentLine()) {
 
-    // select newest from history
-    hist.pop();
-    let next = hist[hist.length - 1];
+      history[domain][idx].pop();
+      history[shadowTextName()][idx].pop();
 
-    history[shadowTextName()][idx].pop(); // stay in sync
+      // select newest from history to replace
+      let next = last(history[domain][idx]);
+      updateDOM(next, idx);
 
-    updateDOM(next, idx); // do replacement
-
-    if ((logging && verbose) || stepMode) {
-      console.log(`${numMods()}] @${lineIdFromWordId(idx)}.${idx} `
-        + `${domain}: ${word} -> ${next} [${pos}]`);
+      if ((logging && verbose) || stepMode) {
+        console.log(`${numMods()}] @${lineIdx}.${idx} `
+          + `${domain}: ${word} -> ${next} [${pos}]`);
+      }
+    }
+    else {
+      delayMs = 1000; // tmp: keep same delay
+      console.warn(`[SKIP] restore @${lineIdx}.${idx} [${pos}]`
+        + ` '${word}' is currently being read (${numMods()}) ts=${Date.now()}`);
     }
   }
   else {
+    // note: can be multiple here
     let id = repids.find(idx => history[domain][idx].length > 1);
     let word = sources[domain][id], hist = history[domain][id];
     console.error('[WARN] Invalid-state, num-mods:'
@@ -465,7 +472,7 @@ function restore() {
   }
 
   if (updateState() && !state.stepMode) {
-    state.loopId = setTimeout(ramble, updateDelay);
+    state.loopId = setTimeout(ramble, delayMs);
   }
 }
 
