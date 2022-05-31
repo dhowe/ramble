@@ -40,10 +40,10 @@ let similarOverrides = {
   "bankside": ["implied", "outside", "untried", "applied", "inside", "upside", "allied", "banked", "broadside", "anchored"],
   "beyond": ["above", "outside", "before", "behind", /*"within"*/],
   "breakfast": ["broadcast", "repast", "supper", "impact", "breakage", "bondage"],
-  "building": ["assembling", "erecting", "constructing", "forming", "producing", "casting", "composing","fabricating", "framing", "modeling", "formulating", "developing", "improving", "strengthening", "compounding", "escalating", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding" ],
+  "building": ["assembling", "erecting", "constructing", "forming", "producing", "casting", "composing", "fabricating", "framing", "modeling", "formulating", "developing", "improving", "strengthening", "compounding", "escalating", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding"],
   "circadian": ["rhythmic", "regular", "circassian", "crepuscular", "orcadian", "circular", "cyclical"],
   "coiled": ["twisted", "twisting", "bent", "broken", "serpentine", "corkscrewed", "jagged", "barbed"],
-  "desperately": [ "dangerously", "fiercely", "perilously", "seriously", "carelessly", "gravely", "hysterically", "hopelessly", "shockingly", "trivially", "temporally", "irreparably", "perfectly", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
+  "desperately": ["dangerously", "fiercely", "perilously", "seriously", "carelessly", "gravely", "hysterically", "hopelessly", "shockingly", "trivially", "temporally", "irreparably", "perfectly", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
   "dip": ["swim", "clip", "drip", "quip", "trip", "slip", "snip", "strip", "whip", "bath", "submersion", "plunge", "shower", "rinse"],
   "familiar": ["casual", "mundane", "recognizable", "intimate", "unfamiliar", "unknown", "obscure", "unusual", "similar", "familial", "filial", "crepuscular", "dusky", "quotidian", "peculiar"],
   "infrequently": ["occasionally", "intermittently", "periodically", "sometimes", "rarely", "sporadically", "variously"],
@@ -63,7 +63,7 @@ let similarOverrides = {
   "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
   "sunset": ["dawn", "daybreak", "daylight", "sunrise", "sunup", "dusk", "night", "nightfall", "sundown", "twilight"],
   "terror": ["fear", "texture", "torture", "timbre", "desolation"],
-  "unfamiliar": [ "pioneering", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
+  "unfamiliar": ["pioneering", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
   "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
   "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
@@ -156,7 +156,7 @@ function shadowRandom(wordIdx, similars) {
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, true, ['max', 'min']);
+    let res = widthChangePercentage(sim, wordIdx, true);
     if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
@@ -211,7 +211,7 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   //console.time('Execution Time Ctx');
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, false, ['max', 'min']);
+    let res = widthChangePercentage(sim, wordIdx, false);
     if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
     let minWidth = res.min[1], maxWidth = res.max[1];
     if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
@@ -390,7 +390,7 @@ function postReplace(e) {
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
     history[domain][idx].push(dnext);
-    let { wordSpaceEm, lineEle } = updateDOM(dnext, idx);
+    updateDOM(dnext, idx);
 
     // pick a random similar to store in shadow text
     let snext = contextualRandom(idx, sword, ssims, { isShadow: true });
@@ -401,13 +401,9 @@ function postReplace(e) {
     let ms = Date.now() - timestamp;
     delayMs = Math.max(1, updateDelay - ms);
     if ((logging && verbose) || stepMode) {
-      let style = window.getComputedStyle(lineEle);
-      let text = lineEle.firstChild.textContent;
       console.log(`${numMods()}) @${lineIdx}.${idx} `
-        + `${dword}->${dnext}(${domain.substring(0, 1)}), `
-        + `${sword}->${snext}(${shadow.substring(0, 1)}) `
-        + `[${pos}] elapsed=${ms} delay=${delayMs} ws=${wordSpaceEm.toFixed(2)}`
-        + ` adjustedWidth=${measureWidthCtx(text, style.font, wordSpaceEm).toFixed(2)}`);
+        + `${dword}->${dnext}(${domain.substring(0, 1)}), ${sword}->${snext}`
+        + `(${shadow.substring(0, 1)}) [${pos}] elapsed=${ms} delay=${delayMs}`);
     }
   }
   else {
@@ -428,12 +424,13 @@ function restore() {
   let { domain, stepMode } = state;
 
   let displayWords = unspanify();
+  let readerLine = reader.currentLine();
 
   // get all possible restorations
   let choices = repids
     .map(idx => ({ idx, word: displayWords[idx] }))
-    .filter(({ word, idx }) => history[domain][idx].length > 1
-      && isReplaceable(word));
+    .filter(({ word, idx }) => history[domain][idx].length > 1 &&
+      lineIdFromWordId(idx) !== readerLine && isReplaceable(word));
 
   if (choices.length) {
 

@@ -110,8 +110,9 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
     result.min = [((widthMinWs - targetWidth) / targetWidth) * 100, widthMinWs]
   }
 
-  if (fields.includes('opt')) {
-    if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
+  if (fields.includes('opt')) { // unused
+    if (isShadow) throw Error
+      ('[widthChangePercentage] opt field not avaliable for shadow text');
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
     let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
@@ -126,9 +127,11 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
     bound2 = bound1 - (step * direction);
     currentWidth = measureWidthCtx(newText, style.font, bound2 + "px");
 
-    let finalWidth = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? currentWidth : w1;
-    let finalWs = Math.abs(w1 - targetWidth) >= Math.abs(currentWidth - targetWidth) ? bound2 : bound1;
-    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100, finalWidth, finalWs, finalWs / initialMetrics.fontSize]
+    let wdiff = Math.abs(currentWidth - targetWidth);
+    let finalWidth = Math.abs(w1 - targetWidth) >= wdiff ? currentWidth : w1;
+    let finalWs = Math.abs(w1 - targetWidth) >= wdiff ? bound2 : bound1;
+    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100,
+      finalWidth, finalWs, finalWs / initialMetrics.fontSize]
   }
 
   return result;
