@@ -34,23 +34,27 @@ let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
 // these override lookup values
 let similarOverrides = {
   "adventure": ["inquiry", "hope", "heritage", "misadventure", "choice", "invention", "exploration", "reconciliation", "lust", "creation", "learning", "mourning"],
+  "again": ["since", "finally", "ultimately", "totally"],
   "animal": ["brute", "beastly", "brutal", "brutish", "bestial", "fleshy", "carnal", "corporeal", "somatic", "mental", "immaterial", "rational", "irrational", "minimal"],
   "avoid": ["elude", "escape", "evade", "delay"],
+  "bankside": ["implied", "outside", "untried", "applied", "inside", "upside", "allied", "banked", "broadside", "anchored"],
   "beyond": ["above", "outside", "before", "behind", /*"within"*/],
-  "building": ["assembling", "erecting", "constructing", "forming", "manufacturing", "producing", "casting", "composing", "contriving", "engineering", "fabricating", "framing", "modeling", "initiating", "formulating", "boosting", "developing", "improving", "strengthening", "amplifying", "increasing", "compounding", "escalating", "multiplying", "abridging", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding", "guiding", "glazing"],
+  "breakfast": ["broadcast", "repast", "supper", "impact", "breakage", "bondage"],
+  "building": ["assembling", "erecting", "constructing", "forming", "producing", "casting", "composing","fabricating", "framing", "modeling", "formulating", "developing", "improving", "strengthening", "compounding", "escalating", "compressing", "decreasing", "condensing", "contracting", "degrading", "dividing", "dismantling", "rebuilding", "binding", "gilding" ],
   "circadian": ["rhythmic", "regular", "circassian", "crepuscular", "orcadian", "circular", "cyclical"],
   "coiled": ["twisted", "twisting", "bent", "broken", "serpentine", "corkscrewed", "jagged", "barbed"],
-  "desperately": ["badly", "dangerously", "fiercely", "greatly", "perilously", "seriously", "carelessly", "dramatically", "gravely", "hysterically", "fearfully", "hopelessly", "shockingly", "appallingly", "trivially", "temporally", "irreparably", "perfectly", "generally", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
+  "desperately": [ "dangerously", "fiercely", "perilously", "seriously", "carelessly", "gravely", "hysterically", "hopelessly", "shockingly", "trivially", "temporally", "irreparably", "perfectly", "indefinitely", "delicately", "reverently", "urgently", "subtly"],
   "dip": ["swim", "clip", "drip", "quip", "trip", "slip", "snip", "strip", "whip", "bath", "submersion", "plunge", "shower", "rinse"],
   "familiar": ["casual", "mundane", "recognizable", "intimate", "unfamiliar", "unknown", "obscure", "unusual", "similar", "familial", "filial", "crepuscular", "dusky", "quotidian", "peculiar"],
+  "infrequently": ["occasionally", "intermittently", "periodically", "sometimes", "rarely", "sporadically", "variously"],
   "inhuman": ["onerous", "oppressive", "human", "austere", "inclement", "intemperate", "otherwise"],
   "marshaling": ["assembling", "mobilizing", "aligning", "arranging", "collecting", "conducting", "organizing", "guiding", "directing", "distributing", "gathering", "grouping", "leading", "ordering", "rallying", "dispersing", "disturbing", "dividing", "mixing", "neglecting", "scattering", "separating", "spreading", "determining", "encircling"],
   "might": ["could", "would", "should", "must"],
-  "mildly": ["delicately", "indifferently", "lightly", "gently", "moderately", "quietly", "blandly", "calmly", "compassionately", "gingerly", "patiently", "softly", "tolerantly", "tenderly", "harshly", "roughly", "violently", "wildly", "fiercely", "ferociously", "brutally", "critically"],
-  "most": ["least", "mostly", "must"],
+  "mildly": ["delicately", "indifferently", "lightly", "gently", "moderately", "quietly", "blandly", "calmly", "gingerly", "patiently", "softly", "tolerantly", "tenderly", "harshly", "roughly", "violently", "wildly", "fiercely", "ferociously", "brutally", "critically"],
   "neighbors": ["brothers", "sisters", "parents", "children", "horses", "elders"],
   "particularly": ["specifically", "generally", "naturally", "often", "commonly"],
   "rending": ["ripping", "cleaving", "rupturing", "splitting", "severing", "cutting"],
+  "right": ["again", "although", "finally", "rarely", "ultimately", "totally", "variously", "occasionally", "sometimes"],
   "set": ["digressed", "progressed", "sought", "stepped", "regressed", "transgressed"],
   "simply": ["merely", "basically", /*"just",*/ "barely", "dimly", "finally", "definitively"],
   "since": ["because", /*"whereas",*/ "hence", "although"],
@@ -59,7 +63,7 @@ let similarOverrides = {
   "sound": ["ground", "gesture", "vibration", "sense", "emotion", "thought", "idea"],
   "sunset": ["dawn", "daybreak", "daylight", "sunrise", "sunup", "dusk", "night", "nightfall", "sundown", "twilight"],
   "terror": ["fear", "texture", "torture", "timbre", "desolation"],
-  "unfamiliar": ["unconventional", "pioneering", "unprecedented", "bizarre", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
+  "unfamiliar": [ "pioneering", "curious", "exotic", "foreign", "obscure", "peculiar", "unexpected", "unknown", "unusual", "alien", "outlandish", "uncommon", "unmistakable", "familiar", "uncanny", "intimate", "similar", "casual"],
   "unsettled": ["unresolved", "uncertain", "undecided", "rootless", "mottled", "kettled"],
   "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
@@ -67,7 +71,7 @@ let similarOverrides = {
 };
 
 // words considered un-replaceable
-let stops = ["several", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
+let stops = ["several", "another", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
 let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];

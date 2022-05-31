@@ -199,14 +199,12 @@ let cache = {
     "mousse",
     "mess",
     "moth",
-    "more",
     "mall",
     "miss",
     "mass",
     "mouse",
     "hoss",
     "boss",
-    "most"
   ],
   "rubble": [
     "trouble",
@@ -229,7 +227,6 @@ let cache = {
     "flaw",
     "door",
     "shore",
-    "more",
     "chore",
     "whore",
     "bore",
@@ -407,20 +404,6 @@ let cache = {
     "blushed",
     "pushed",
     "rusted"
-  ],
-  "more": [
-    "newer",
-    "poorer",
-    "smaller",
-    "higher",
-    "lower",
-    "rarer",
-    "meaner",
-    "warmer",
-    "shorter",
-    "nearer",
-    "fairer",
-    "taller"
   ],
   "circuits": [
     "sockets",
@@ -856,26 +839,15 @@ let cache = {
     "justification",
     "normalization",
     "narration",
-    "ovation",
     "hallucination"
   ],
   "hunger": [
     "anger",
-    "bunker",
-    "mugger",
-    "hunter",
-    "hunk",
-    "hanger",
-    "bugger",
-    "lunger",
-    "finger",
-    "hangar"
-  ],
-  "breakfast": [
-    "preface",
-    "breast",
-    "broadcast",
-    "breakage"
+    "thirst",
+    "loneliness",
+    "sadness",
+    "solitude",
+    "nostalgia",
   ],
   "fish": [
     "fills",
@@ -1300,19 +1272,7 @@ let cache = {
     "leased",
     "last",
     "laced",
-    "most",
     "post"
-  ],
-  "right": [
-    "lighter",
-    "tighter",
-    "higher",
-    "drier"
-  ],
-  "here": [
-    "dear",
-    "clear",
-    "near"
   ],
   "place": [
     "apace",
@@ -1363,10 +1323,6 @@ let cache = {
     "deputy",
     "beat"
   ],
-  "another": [
-    "neither",
-    "either"
-  ],
   "stumbled": [
     "fumbled",
     "mumbled",
@@ -1388,7 +1344,7 @@ let cache = {
     "yourself"
   ],
   "hearing": [
-    'appearing', 'cheering', 'clearing', 'disappearing', 'jeering', 'peering', 'premiering', 'rearing', 'searing', 'smearing', 'sneering', 'steering',  'bearing'
+    'appearing', 'cheering', 'clearing', 'disappearing', 'jeering', 'peering', 'premiering', 'rearing', 'searing', 'smearing', 'sneering', 'steering', 'bearing'
   ],
   "call": [
     "calf",
