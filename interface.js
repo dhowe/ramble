@@ -157,7 +157,7 @@ function createLegend(metrics) {
   </svg> <span> shared</span></div>
   <div><svg class="overlap-legend">
   <rect style="fill: ${visBandColors[3]}" id="box" x="0" y="0" width="20" height="20"/>
-  </svg> <span> found<span></div>
+  </svg> <span> found</span></div>
   <div> <div id="about-button">
   <svg xmlns="http://www.w3.org/2000/svg" width="23" height="25" viewBox="0 0 50 50">
   <circle cx="23" cy="28" r = "23" fill="#e6e6e6" />
