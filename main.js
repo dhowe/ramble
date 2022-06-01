@@ -415,7 +415,7 @@ function postReplace(e) {
     if (beingRead) msg += `'${dword}' is currently being read`;
     if (!dsims.length) msg += `None found for '${dword}' `;
     if (!ssims.length) msg += `None found for '${sword}' (shadow)`;
-    console.warn(msg);
+    if (logging) console.log(msg);
   }
 
   if (!stepMode) state.loopId = setTimeout(ramble, delayMs);
@@ -457,7 +457,7 @@ function restore() {
     }
     else {
       delayMs = 1000; // tmp: keep same delay
-      console.warn(`[SKIP] restore @${lineIdx}.${idx} [${pos}]`
+      if (logging) console.log(`[SKIP] restore @${lineIdx}.${idx} [${pos}]`
         + ` '${word}' is currently being read (${numMods()}) ts=${Date.now()}`);
     }
   }
