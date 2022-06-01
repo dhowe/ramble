@@ -392,11 +392,11 @@ function postReplace(e) {
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
     history[domain][idx].push(dnext);
-    updateDOM(dnext, idx);
 
     // pick a random similar to store in shadow text
     let snext = contextualRandom(idx, sword, ssims, { isShadow: true });
     history[shadow][idx].push(snext);
+    updateDOM((shadowMode ? snext : dnext),idx);
     updateState();
 
     // compute next delay and log the replacement
@@ -447,7 +447,7 @@ function restore() {
       history[shadowTextName()][idx].pop();
 
       // select newest from history to replace
-      let next = last(history[domain][idx]);
+      let next = shadowMode ? last(history[shadowTextName()][idx]) :last(history[domain][idx]);
       updateDOM(next, idx);
 
       if ((logging && verbose) || stepMode) {

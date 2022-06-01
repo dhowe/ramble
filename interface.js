@@ -54,6 +54,18 @@ function keyhandler(e) {
   }
   else if (e.code === 'KeyS') {
     shadowMode = !shadowMode;
+    document.body.classList.toggle("shadow");
+    document.getElementById("text-display").classList.toggle("shadow");
+    document.getElementById("legend").firstChild.classList.toggle("shadow");
+    //update dom
+    let l = document.getElementsByClassName("word").length;
+    for (let i = 0; i < l; i++) {
+      if (shadowMode) {
+        updateDOM(last(history[shadowTextName()][i]), i)
+      } else {
+        updateDOM(last(history[state.domain][i]), i)
+      }
+    }
     console.log('[KEYB] shadowMode: ' + shadowMode + ' ** NOT-YET-IMPLEMENTED');
   }
   else if (e.code === 'KeyT') {
