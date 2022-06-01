@@ -458,7 +458,7 @@ function restore() {
     else {
       delayMs = 1000; // tmp: keep same delay
       if (logging) console.log(`[SKIP] restore @${lineIdx}.${idx} [${pos}]`
-        + ` '${word}' is currently being read (${numMods()}) ts=${Date.now()}`);
+        + ` '${word}' is currently being read (${numMods()} mods)`);
     }
   }
   else {
