@@ -14,7 +14,7 @@ let readDelay = stepsPerLeg * updateDelay;
 let initialDelay = 3000;
 
 // min/max/start CSS word-spacing (em)
-let minWordSpace = -0.1, maxWordSpace = 0.5, initialWordSpace = 0.1;
+let minWordSpace = -0.05, maxWordSpace = 0.5, initialWordSpace = 0.1;
 
 // leading for text display
 let lineHeightScale = 1.28;
@@ -104,7 +104,8 @@ let state = {
   updating: false,
   loopId: 0,
   legs: 0,
-  logging
+  logging,
+  verbose
 };
 
 let lex = RiTa.lexicon();
@@ -123,7 +124,7 @@ let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = false;
+let radius = displayBounds.width / 2, dbug = 1;
 
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
@@ -135,6 +136,7 @@ if (dbug) {
   logging = true;
   readDelay = 1;
   updateDelay = 100;
+  highlightWs = true;
   domStats.style.display = 'block';
 }
 
@@ -147,38 +149,13 @@ ramble(); // go
 // would result in line more than 5% off the target-width
 function shadowRandom(wordIdx, similars) {
 
-  let ldbug = false;
   let lineIdx = wordLineMap.word2Line[wordIdx];
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let oldWord = history[shadowTextName()].map(last)[wordIdx];
-  let minAllowedWidth = targetWidth * .95;
-  let maxAllowedWidth = targetWidth * 1.05;
-
-  if (ldbug) updateDelay = 10000000; // stop after 1 update
-
-  if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
-    + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
-    + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
-
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, true);
-    if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
-    let minWidth = res.min[1], maxWidth = res.max[1];
-    if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
-      if (ldbug) console.log('-- *** reject: ' + sim, res);
-      return false;
-    }
-    return true; // allowed
+    let res = computeWidthData(sim, wordIdx, { shadow: true });
+    return (res.maxWidth < targetWidth * .95 || res.minWidth > targetWidth * 1.05);
   });
-
-  if (!options.length) {
-    if (ldbug) console.log('-- reverting to random');
-    options = similars;
-  }
-  else {
-    if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
-  }
-
+  if (!options.length) options = similars;
   return RiTa.random(options);
 }
 
@@ -186,47 +163,35 @@ function shadowRandom(wordIdx, similars) {
 // would result in line more than 5% off the target-width
 function contextualRandom(wordIdx, oldWord, similars, opts) {
 
-  let ldbug = false;
+  let ldbug = true;
   if (opts && opts.isShadow) return shadowRandom(wordIdx, similars);
   if (ldbug) updateDelay = 10000000; // stop after 1 update
 
   let wordEle = document.querySelector(`#w${wordIdx}`);
   let lineEle = wordEle.parentElement.parentElement;
   let lineIdx = parseInt((lineEle.id).slice(1));
-  let text = lineEle.textContent;
 
   // find target width and min/max allowable
   let targetWidth = initialMetrics.lineWidths[lineIdx];
   let minAllowedWidth = targetWidth * .95;
   let maxAllowedWidth = targetWidth * 1.05;
 
-  // get current line and word widths
-  let { font, wordSpacing } = window.getComputedStyle(lineEle)
-  let currentLineWidth = measureWidthCtx(text, font, wordSpacing);
-
   if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
     + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
 
-  if (currentLineWidth > maxAllowedWidth) log('Line #' + lineIdx
-    + ' longer than max-width: ' + currentLineWidth.toFixed(2));
-
-  if (currentLineWidth < minAllowedWidth) log('Line #' + lineIdx
-    + ' shorter than min-width: ' + currentLineWidth.toFixed(2));
-
-  //console.time('Execution Time Ctx');
+  let wopts = { computeWordSpace: ldbug };
   let options = similars.filter(sim => {
-    let res = widthChangePercentage(sim, wordIdx, false);
-    if (ldbug) console.log("-- " + sim + ": " + res.min[1] + '-' + res.max[1]);
-    let minWidth = res.min[1], maxWidth = res.max[1];
-    if (maxWidth < minAllowedWidth || minWidth > maxAllowedWidth) {
+    let res = computeWidthData(sim, wordIdx, wopts);
+    if (ldbug) console.log("-- " + sim + ": " + res.minWidth.toFixed(2) + '-'
+      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
+    if (res.maxWidth <= minAllowedWidth || res.minWidth >= maxAllowedWidth) {
       if (ldbug) console.log('-- *** reject: ' + sim, res);
       return false;
     }
     return true; // allowed
   });
 
-  //console.timeEnd('Execution Time Ctx');
   if (!options.length) {
     if (ldbug) console.log('-- reverting to random');
     options = similars;
@@ -382,20 +347,24 @@ function updateState() {
   return true;
 }
 
-/* selects an index to replace (from similar lookup) in displayed text */
+let testContextualRandom = true;
+
+/* selects an index to replace in displayed text */
 function replace() {
-  let { domain } = state;
-  let shadow = shadowTextName();
 
   // don't pick ids on reader's current line (#110)
-  let readerLineIdx = reader ? reader.currentLine() : -1;
-  let idx = RiTa.random(repids.filter(id => !reader || lineIdFromWordId(id) !== readerLineIdx));
-  let dword = last(history[domain][idx]), sword = last(history[shadow][idx]);
+  let readerLine = reader ? reader.currentLine() : -1;
+  let idx = RiTa.random(repids.filter(id => lineIdFromWordId(id) !== readerLine));
+  if (testContextualRandom) idx = 31;
+
+  let dword = last(history[state.domain][idx]);
+  let sword = last(history[shadowTextName()][idx]);
   let data = { idx, dword, sword, state, timestamp: Date.now() };
 
   worker.postMessage({ event: 'lookup', data }); // do similar search
 }
 
+/* called from worker with a set of similars */
 function postReplace(e) {
 
   let { idx, dword, sword, dsims, ssims, timestamp } = e.data;
@@ -411,6 +380,8 @@ function postReplace(e) {
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
+    if (testContextualRandom) dnext = 'brotherwoods';
+
     history[domain][idx].push(dnext);
 
     // pick a random similar to store in shadow text

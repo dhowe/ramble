@@ -82,12 +82,14 @@ const getInitialContentWidths = function (n, useCtx) {
   @param isShadow: boolean, true if using shadow text
   @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
 
-  @optimisen if we measure new width with 'minWordSpace', we should be able to compute width 
+  @optimise if we measure new width with 'minWordSpace', we should be able to compute width 
   with 'maxWordSpace', based on the numSpaces, without another measure call (possible futures)
 */
-const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['max', 'min']) {
+const computeWidthData = function (newWord, wordIdx, opts = {}) {
 
   let result = {};
+  let isShadow = opts.shadow;
+  let usePercent = opts.usePercent;  
   let wordEle = isShadow ? undefined : document.getElementById("w" + wordIdx);
   let lineIdx = wordLineMap.word2Line[wordIdx];
   let originalWord = isShadow ? history[shadowTextName()].map(last)[wordIdx] : wordEle.textContent;
@@ -98,24 +100,26 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
   let newText = originalText.replace(originalWord, newWord); // if multiple words?
   let style = window.getComputedStyle(lineEle);
 
-  if (fields.includes('max')) {
-    let maxWsPx = maxWordSpace * initialMetrics.fontSize;
-    let widthMaxWs = measureWidthCtx(newText, style.font, maxWsPx + "px");
-    result.max = [((widthMaxWs - targetWidth) / targetWidth) * 100, widthMaxWs]
-  }
+  // compute the max-width (width with max allowed word-space)
+  let maxWsPx = maxWordSpace * initialMetrics.fontSize;
+  let widthMaxWs = measureWidthCtx(newText, style.font, maxWsPx + "px");
+  result.maxWidth = usePercent ? ((widthMaxWs - targetWidth) / targetWidth) * 100 : widthMaxWs;
 
-  if (fields.includes('min')) {
-    let minWsPx = minWordSpace * initialMetrics.fontSize;
-    let widthMinWs = measureWidthCtx(newText, style.font, minWsPx + "px");
-    result.min = [((widthMinWs - targetWidth) / targetWidth) * 100, widthMinWs]
-  }
+  // compute the min-width (width with min allowed word-space)
+  let minWsPx = minWordSpace * initialMetrics.fontSize;
+  let widthMinWs = measureWidthCtx(newText, style.font, minWsPx + "px");
+  result.minWidth = usePercent ? ((widthMinWs - targetWidth) / targetWidth) * 100 : widthMinWs;
 
-  if (fields.includes('opt')) {
-    if (isShadow) throw Error('[widthChangePercentage] opt field not avaliable for shadow text');
+
+  if (opts.computeWordSpace) {   // compute optimal word-space and actual width using it
+
+    if (isShadow) throw Error('opts.computeWordSpace not available for shadow text');
+
     let currentWsPx = parseFloat(style.wordSpacing.replace("px", "").trim())
     let step = 0.01 * initialMetrics.fontSize;
     let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
     let direction = currentWidth >= targetWidth ? -1 : 1;
+    
     let bound1 = currentWsPx, bound2, w1;
     while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
       bound1 += step * direction;
@@ -128,9 +132,9 @@ const widthChangePercentage = function (newWord, wordIdx, isShadow, fields = ['m
 
     let wdiff = Math.abs(currentWidth - targetWidth);
     let finalWidth = Math.abs(w1 - targetWidth) >= wdiff ? currentWidth : w1;
-    let finalWs = Math.abs(w1 - targetWidth) >= wdiff ? bound2 : bound1;
-    result.opt = [((finalWidth - targetWidth) / finalWidth) * 100,
-      finalWidth, finalWs, finalWs / initialMetrics.fontSize];
+    result.actualWidth = usePercent ? ((finalWidth - targetWidth) / finalWidth) * 100 : finalWidth;
+    result.wordSpacePx = Math.abs(w1 - targetWidth) >= wdiff ? bound2 : bound1;
+    result.wordSpaceEm = result.wordSpacePx / initialMetrics.fontSize;
   }
 
   return result;
