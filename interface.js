@@ -23,7 +23,7 @@ function keyhandler(e) {
     let curr = window.getComputedStyle(domStats);
     domStats.style.display = curr.display === 'block' ? 'none' : 'block';
   }
-  else if (e.code === 'KeyD') {
+  else if (e.code === 'KeyD' && reader) {
     reader.unpauseThen(update);
     console.log('[KEYB] skip-delay');
   }
@@ -51,22 +51,6 @@ function keyhandler(e) {
   else if (e.code === 'KeyE') {
     if (logging) console.log('[KEYB] end');
     stop();
-  }
-  else if (e.code === 'KeyS') {
-    shadowMode = !shadowMode;
-    document.body.classList.toggle("shadow");
-    document.getElementById("text-display").classList.toggle("shadow");
-    document.getElementById("legend").firstChild.classList.toggle("shadow");
-    //update dom
-    let l = document.getElementsByClassName("word").length;
-    for (let i = 0; i < l; i++) {
-      if (shadowMode) {
-        updateDOM(last(history[shadowTextName()][i]), i)
-      } else {
-        updateDOM(last(history[state.domain][i]), i)
-      }
-    }
-    console.log('[KEYB] shadowMode: ' + shadowMode + ' ** NOT-YET-IMPLEMENTED');
   }
   else if (e.code === 'KeyT') {
     if (!state.stepMode) {
@@ -109,20 +93,21 @@ function updateInfo() {
     data += `&nbsp; Leg: ${legs + 1}/${maxLegs}&nbsp; Affinity:`;
     data += ' rural=' + affvals.rural + ' urban=' + affvals.urban;
     data += ' shared=' + affvals.shared + ' found=' + affvals.found;
-    
-    if (!production) data += ` Line=${reader.currentLine()}`;
 
-    if (typeof performance !== 'undefined' && performance.memory) {
-      let mem = performance.memory.usedJSHeapSize; // js heap
-      data += `  [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
+    if (!production) {
+      data += ` Line=${reader.currentLine()}`;
+      if (typeof performance !== 'undefined' && performance.memory) {
+        let mem = performance.memory.usedJSHeapSize; // js heap
+        data += `  [${(mem / Math.pow(1000, 2)).toFixed(2)}mb]`;
+      }
     }
-    
+
     domStats.innerHTML = data;
   }
 
   progressBars.forEach((p, i) => {
     let num = 0, label = affinityLabels[i];
-    if (reader.reading) {
+    if (reader && reader.reading) {
       if (label === 'found') {
         num = 100;
       } else if (label === 'shared') {
@@ -160,10 +145,10 @@ function createLegend(metrics) {
   </svg> <span> found</span></div>
   <div> <div id="about-button">
   <svg xmlns="http://www.w3.org/2000/svg" width="23" height="25" viewBox="0 0 50 50">
-  <circle cx="23" cy="28" r = "23" fill="#e6e6e6" />
-  <text x="23" y="28" text-anchor="middle" fill="#B3B3B3" font-size="1.8em" dy=".35em">?</text>
+  <circle cx="23" cy="27" r="24" fill="#e6e6e6"></circle>
+  <text x="23" y="27" text-anchor="middle" fill="#B3B3B3" font-size="1.8em" dy=".35em">?</text>
   </svg>
-  </button></div>`;
+  </div>`;
 
   if (hideLegend) {
     legendContent.classList.add('hidden-legend')

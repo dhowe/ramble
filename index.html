@@ -15,8 +15,9 @@
     const production = phosts.includes(location.hostname);
     const tag = production ? '(prod)' : '(dev)';
 
-    // kiosk or regular mode
+    // kiosk and shadow modes
     const kiosk = new URLSearchParams(window.location.search).has('kiosk');
+    const shadow = new URLSearchParams(window.location.search).has('shadow');
 
     // load/display app version
     fetch('package.json').then(res => res.json())
@@ -49,10 +50,11 @@
         <div id="about" class="modal">
           <div id="aboutTitle">Preoccupations</div>
           <div id="aboutDescription">
-            <p><em>Preoccupations</em> presents prose-poetic and discursive ‘translations’ between
+            <p><em>Preoccupations</em> presents prose poetic and discursive translations between
               a pair of structurally related texts, set respectively in contemplative-rural and
-              combative-urban&nbsp;environments. <br>See <a href="https://thenewriver.us/preoccupations/"
-                target="_blank">this page</a> for more&nbsp;info.<br />
+              combative-urban environments.
+            </p>
+            <p>See <a href="https://thenewriver.us/preoccupations/" target="_blank">this page</a> for more&nbsp;info...
             </p>
           </div>
           <div id="aboutAuthor"><a href="https://programmatology.shadoof.net/" target="_blank">John Cayley</a> & <a

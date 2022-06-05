@@ -29,7 +29,25 @@ let visBandWidth = 3;
 let adjustInitialWordspacing = true;
 
 // visualisation [ rural, urban, shared, found, initial ]
-let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3'];
+let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3', '#777777'];
+
+// words considered un-replaceable
+let stops = ["several", "another", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
+
+// ignored when found as a similar
+let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
+
+// set true to generate a new cache file
+let downloadCache = false;
+
+// logging is true unless production
+let logging = !production;
+
+// keyboard toggle options
+let verbose = false, highlights = false, hideLegend = true, highlightWs = false;
+
+// swaps rural/urban, inverts colors
+let shadowMode = shadow || false;
 
 // these override values found via lookup
 let similarOverrides = {
@@ -69,23 +87,8 @@ let similarOverrides = {
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
   "will": ["would", "must", "since", "again", "finally", "ultimately"],
   "walk": ['stalk', 'talk', "redefinition", "exhibition", "omission", "exposition", "admission", "proposition", "commission", "juxtaposition", "extradition"],
-  "assault": [ "exposition", "admission", "proposition", "commission", "juxtaposition", "extradition", "attack"]
+  "assault": ["exposition", "admission", "proposition", "commission", "juxtaposition", "extradition", "attack"]
 };
-
-// words considered un-replaceable
-let stops = ["several", "another", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
-
-// ignored when found as a similar
-let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
-
-// set true to generate a new cache file
-let downloadCache = false;
-
-// logging is true unless production
-let logging = !production;
-
-// keyboard toggle options
-let verbose = false, highlights = false, hideLegend = true, highlightWs = false, shadowMode = false;
 
 let sources = {
   rural: ['by', 'the', 'time', 'the', 'light', 'has', 'faded', ',', 'as', 'the', 'last', 'of', 'the', 'reddish', 'gold', 'illumination', 'comes', 'to', 'rest', ',', 'then', 'imperceptibly', 'spreads', 'out', 'over', 'the', 'moss', 'and', 'floor', 'of', 'the', 'woods', 'on', 'the', 'westerly', 'facing', 'lakeside', 'slopes', ',', 'you', 'or', 'I', 'will', 'have', 'set', 'out', 'on', 'several', 'of', 'yet', 'more', 'circuits', 'at', 'every', 'time', 'and', 'in', 'all', 'directions', ',', 'before', 'or', 'after', 'this', 'or', 'that', 'circadian', ',', 'usually', 'diurnal', ',', 'event', 'on', 'mildly', 'rambling', 'familiar', 'walks', ',', 'as', 'if', 'these', 'exertions', 'might', 'be', 'journeys', 'of', 'adventure', 'whereas', 'always', 'our', 'gestures', ',', 'guided', 'by', 'paths', ',', 'are', 'also', 'more', 'like', 'traces', 'of', 'universal', 'daily', 'ritual', ':', 'just', 'before', 'or', 'with', 'the', 'dawn', ',', 'after', 'a', 'morning', 'dip', ',', 'in', 'anticipation', 'of', 'breakfast', ',', 'whenever', 'the', 'fish', 'are', 'still', 'biting', ',', 'as', 'and', 'when', 'the', 'industrious', 'creatures', 'are', 'building', 'their', 'nests', 'and', 'shelters', ',', 'after', 'our', 'own', 'trials', 'of', 'work', ',', 'while', 'the', 'birds', 'still', 'sing', ',', 'in', 'quiet', 'moments', 'after', 'lunch', ',', 'most', 'particularly', 'after', 'dinner', ',', 'at', 'sunset', ',', 'to', 'escape', ',', 'to', 'avoid', 'being', 'found', ',', 'to', 'seem', 'to', 'be', 'lost', 'right', 'here', 'in', 'this', 'place', 'where', 'you', 'or', 'I', 'have', 'always', 'wanted', 'to', 'be', 'and', 'where', 'we', 'might', 'sometimes', 'now', 'or', 'then', 'have', 'discovered', 'some', 'singular', 'hidden', 'beauty', ',', 'or', 'one', 'another', ',', 'or', 'stumbled', 'and', 'injured', 'ourselves', 'beyond', 'the', 'hearing', 'and', 'call', 'of', 'other', 'voices', ',', 'or', 'met', 'with', 'other', 'danger', ',', 'animal', 'or', 'inhuman', ',', 'the', 'one', 'tearing', 'and', 'rending', 'and', 'opening', 'up', 'the', 'darkness', 'within', 'us', 'to', 'bleed', ',', 'yet', 'we', 'suppress', 'any', 'sound', 'that', 'might', 'have', 'expressed', 'the', 'terror', 'and', 'passion', 'and', 'horror', 'and', 'pain', 'so', 'that', 'I', 'or', 'you', 'may', 'continue', 'on', 'this', 'ramble', ',', 'this', 'before', 'or', 'after', 'walk', ',', 'and', 'still', 'return', ';', 'or', 'the', 'other', ',', 'the', 'quiet', 'evacuation', 'of', 'the', 'light', ',', 'the', 'way', ',', 'as', 'we', 'have', 'kept', 'on', 'walking', ',', 'it', 'falls', 'on', 'us', 'and', 'removes', 'us', 'from', 'existence', 'since', 'in', 'any', 'case', 'we', 'are', 'all', 'but', 'never', 'there', ',', 'always', 'merely', 'passing', 'through', 'and', 'by', 'and', 'over', 'the', 'moss', ',', 'under', 'the', 'limbs', 'of', 'the', 'evergreens', ',', 'beside', 'the', 'lake', ',', 'within', 'the', 'sound', 'of', 'its', 'lapping', 'waves', ',', 'annihilated', ',', 'gone', ',', 'quite', 'gone', ',', 'now', 'simply', 'gone', 'and', ',', 'in', 'being', 'or', 'walking', 'in', 'these', 'ways', ',', 'giving', 'up', 'all', 'living', 'light', 'for', 'settled', ',', 'hearth', 'held', 'fire', 'in', 'its', 'place', ',', 'returned', '…'],
@@ -241,7 +244,7 @@ function doLayout() {
   Object.keys(history).map(k => sources[k].map((w, i) => history[k][i] = [w]));
   document.addEventListener('keyup', keyhandler);
   log('Keys -> (h)ighlight (i)nfo s(t)ep (l)og (v)erbose\n'
-    + ' '.repeat(7) + 'un(d)elay (c)olor-key (w)s-classes (e)nd (s)hadow');
+    + ' '.repeat(7) + 'un(d)elay (c)olor-key (w)s-classes (e)nd');
 
   // init resize handler
   window.onresize = () => {
@@ -261,9 +264,26 @@ function doLayout() {
   // create progress bars
   progressBars = createProgressBars({
     color: visBandColors,
-    trailColor: visBandColors[4],
+    trailColor: visBandColors[shadowMode ? 5 : 4],
     strokeWidth: visBandWidth
   });
+
+  if (shadowMode) {
+
+    // use dark theme
+    document.body.classList.add("shadow");
+    domLegend.firstChild.classList.add("shadow");
+    initialMetrics.textDisplay.classList.add("shadow");
+
+    // use rural layout with urban words
+    let urban = sources.urban;
+    Array.from(document.getElementsByClassName
+      ("word")).forEach((e, i) => e.textContent = urban[i]);
+
+    // swap rural/urban texts
+    sources.urban = sources.rural;
+    sources.rural = urban;
+  }
 
   adjustAllWordSpacing(adjustInitialWordspacing);
   scaleToFit(); // size to window 
@@ -396,7 +416,7 @@ function postReplace(e) {
     // pick a random similar to store in shadow text
     let snext = contextualRandom(idx, sword, ssims, { isShadow: true });
     history[shadow][idx].push(snext);
-    updateDOM((shadowMode ? snext : dnext),idx);
+    updateDOM(dnext, idx);
     updateState();
 
     // compute next delay and log the replacement
@@ -441,13 +461,14 @@ function restore() {
     let { word, idx } = RiTa.random(choices);
     let lineIdx = lineIdFromWordId(idx);
     let pos = sources.pos[idx];
+    let shadow = shadowTextName();
     if (lineIdx !== reader.currentLine()) {
 
       history[domain][idx].pop();
-      history[shadowTextName()][idx].pop();
+      history[shadow][idx].pop();
 
       // select newest from history to replace
-      let next = shadowMode ? last(history[shadowTextName()][idx]) :last(history[domain][idx]);
+      let next = last(history[domain][idx]);
       updateDOM(next, idx);
 
       if ((logging && verbose) || stepMode) {
