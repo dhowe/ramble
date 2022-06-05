@@ -173,7 +173,7 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   // find target width and min/max allowable
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let minAllowedWidth = targetWidth * .95;
+  let minAllowedWidth = targetWidth * .95; // TODO: this doesn't work
   let maxAllowedWidth = targetWidth * 1.05;
 
   if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
@@ -185,7 +185,7 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
     let res = computeWidthData(sim, wordIdx, wopts);
     if (ldbug) console.log("-- " + sim + ": " + res.minWidth.toFixed(2) + '-'
       + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
-    if (res.maxWidth <= minAllowedWidth || res.minWidth >= maxAllowedWidth) {
+    if (res.maxWidth < minAllowedWidth || res.minWidth > maxAllowedWidth) {
       if (ldbug) console.log('-- *** reject: ' + sim, res);
       return false;
     }
