@@ -173,8 +173,8 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
 
   // find target width and min/max allowable
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let minAllowedWidth = targetWidth * .95; // TODO: this doesn't work
-  let maxAllowedWidth = targetWidth * 1.05;
+  let minAllowedWidth = Math.max(targetWidth * .997, targetWidth - initialMetrics.radius * 0.01); 
+  let maxAllowedWidth = Math.min(targetWidth * 1.003, targetWidth + initialMetrics.radius * 0.01);
 
   if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
@@ -183,12 +183,25 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   let wopts = { computeWordSpace: ldbug };
   let options = similars.filter(sim => {
     let res = computeWidthData(sim, wordIdx, wopts);
-    if (ldbug) console.log("-- " + sim + ": " + res.minWidth.toFixed(2) + '-'
-      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
     if (res.maxWidth < minAllowedWidth || res.minWidth > maxAllowedWidth) {
-      if (ldbug) console.log('-- *** reject: ' + sim, res);
+      if (ldbug) {
+        if (res.wordSpaceEm > -0.05 && res.wordSpaceEm < 0.5) {
+          console.warn('-- *** reject: ' + sim, res);
+        } else {
+          console.log('-- *** reject: ' + sim, res);
+        }
+      }
       return false;
     }
+    if (ldbug) {
+      if (res.wordSpaceEm <= -0.05 || res.wordSpaceEm >= 0.5) {
+        console.warn("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
+      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
+      } else {
+        console.log("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
+      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
+      }
+    } 
     return true; // allowed
   });
 
@@ -347,7 +360,7 @@ function updateState() {
   return true;
 }
 
-let testContextualRandom = true;
+let testContextualRandom = false;
 
 /* selects an index to replace in displayed text */
 function replace() {
