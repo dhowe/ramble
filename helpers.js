@@ -70,6 +70,7 @@ const getInitialContentWidths = function (n, useCtx) {
 }
 
 /*
+// TODO
   Computes the estimated change of width in percentage after a word change
   @return {
     min: [percentage, width] - distance to target width with min word spacing,

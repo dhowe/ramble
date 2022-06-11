@@ -172,9 +172,10 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
   let lineIdx = parseInt((lineEle.id).slice(1));
 
   // find target width and min/max allowable
+  let wiggle = initialMetrics.radius * 0.01;
   let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let minAllowedWidth = Math.max(targetWidth * .997, targetWidth - initialMetrics.radius * 0.01); 
-  let maxAllowedWidth = Math.min(targetWidth * 1.003, targetWidth + initialMetrics.radius * 0.01);
+  let minAllowedWidth = Math.max(targetWidth * .997, targetWidth - wiggle);
+  let maxAllowedWidth = Math.min(targetWidth * 1.003, targetWidth + wiggle);
 
   if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
     + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
@@ -196,12 +197,12 @@ function contextualRandom(wordIdx, oldWord, similars, opts) {
     if (ldbug) {
       if (res.wordSpaceEm <= -0.05 || res.wordSpaceEm >= 0.5) {
         console.warn("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
-      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
+          + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
       } else {
         console.log("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
-      + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
+          + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
       }
-    } 
+    }
     return true; // allowed
   });
 
