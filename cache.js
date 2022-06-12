@@ -903,7 +903,6 @@ let cache = {
     "bests"
   ],
   "thugs": [
-    "firebugs",
     "tugs",
     "lugs",
     "jugs",
@@ -912,10 +911,9 @@ let cache = {
     "bugs",
     "mugs",
     "drugs",
-    "rugs",
     "plugs",
     "thuds",
-    "thumbs"
+    "thumbs",
   ],
   "shelters": [
     "smelters",
@@ -1901,23 +1899,24 @@ let cache = {
     "sealed"
   ],
   "heart": [
-    "smart",
-    "chart",
-    "part",
-    "tart",
-    "cart",
-    "dart",
     "start",
     "harp",
     "harm",
-    "heat"
+    "heat",
+    "heath",
+    "imagination",
+    "vision",
   ],
   "hearth": [
-    "harp",
-    "harm",
     "heath",
-    "health",
-    "dearth"
+    "thought",
+    "wealth",
+    "frame",
+    "image",
+    "motion",
+    "kettle",
+    "heaven",
+    "vision"
   ],
   "felt": [
     "kept",
@@ -1959,22 +1958,12 @@ let cache = {
   "fire": [
     "desire",
     "flyer",
-    "drier",
     "supplier",
-    "hire",
-    "acquire",
-    "fryer",
-    "file",
-    "filer",
-    "firm",
-    "fight",
-    "entire",
-    "wire",
-    "fore",
-    "liar",
-    "prior",
     "friar",
-    "fighter"
+    "fighter",
+    "light",
+    "illumination",
+    "lamplight",
   ],
   "veins": [
     "means",
@@ -1982,28 +1971,31 @@ let cache = {
     "vane"
   ],
   "exiled": [
-    "exhaled",
-    "exited"
+    "evicted",
+    "uprooted",
+    "exited",
+    "excited",
+    "expelled",
+    "ousted",
+    "separated",
+    "abandoned",
+    "banished",
+    "outlawed",
+    "ejected",
+    "imagined",
+    "unimagined"
   ],
   "returned": [
-    "yearned",
     "adjourned",
-    "retarded",
     "retained",
-    "attuned",
-    "recurred",
-    "overturned",
     "concerned",
-    "attained",
     "refined",
     "atoned",
-    "burned",
-    "spurned",
-    "discerned",
-    "shuttered",
-    "retailed",
-    "resurged",
-    "journeyed",
-    "churned"
+    "remembered",
+    "relearned",
+    "rejoined",
+    "unharmed",
+    "imagined",
+    "unimagined"
   ]
 };

@@ -35,7 +35,7 @@ let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3', '#77
 let stops = ["several", "another", "like", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
-let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
+let ignores = ["leding", "expecteds", "dippy", "ashare", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
 
 // set true to generate a new cache file
 let downloadCache = false;
@@ -359,7 +359,9 @@ function replace() {
 
   // don't pick ids on reader's current line (#110)
   let readerLine = reader ? reader.currentLine() : -1;
-  let idx = RiTa.random(repids.filter(id => lineIdFromWordId(id) !== readerLine));
+  let idx = RiTa.random(repids.filter(id => {//lineIdFromWordId(id) !== readerLine
+    return lineIdFromWordId(id) === 26;
+  }));
   //idx = 69; // for testing one word-idx
 
   let dword = last(history[state.domain][idx]);
@@ -698,6 +700,7 @@ function beingRead(idx) { // unused
 function lineIdFromWordId(idx) {
   // return wordLineMap.word2Line[idx]; // strange results?
   let wordEle = document.getElementById("w" + idx);
+  if (!wordEle) throw Error('No word for idx='+idx);
   let lineEle = wordEle.parentElement.parentElement;
   return parseInt(lineEle.id.slice(1));
 }
