@@ -22,7 +22,8 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
     if (/px/.test(wordSpacing)) {
       wordSpacePx = parseFloat(wordSpacing.replace("px", "").trim());
     } else if (/em/.test(wordSpacing)) {
-      wordSpacePx = parseFloat(wordSpacing.replace("em", "").trim()) * initialMetrics.fontSize;
+      wordSpacePx = parseFloat(wordSpacing.replace("em", "").trim())
+        * initialMetrics.fontSize;
     } else {
       wordSpacePx = 0;
       console.error("Unable to parse wordSpacing, using 0");
@@ -34,7 +35,8 @@ const measureWidthCtx = function (text, font, wordSpacing) { // scale = 1
   let width = measureCtx.measureText(text).width;
   let numSpaces = text.split(' ').length - 1;
 
-  return (width + (numSpaces * wordSpacePx)) * (isSafari ? safariWidthScaleRatio : 1);
+  return (width + (numSpaces * wordSpacePx))
+    * (isSafari ? safariWidthScaleRatio : 1);
 }
 
 /*
@@ -70,18 +72,20 @@ const getInitialContentWidths = function (n, useCtx) {
 }
 
 /*
-// TODO
   Computes the estimated change of width in percentage after a word change
   @return {
-    min: [percentage, width] - distance to target width with min word spacing,
-    max: [percentage, width] - distance to target width with max word spacing
-    opt: [percentage, width, ws (in px), ws (in em)] - distance to target after ws adjustment (unused)
+    minWidth: [percentage || width] - distance to target width with min word spacing,
+    maxWidth: [percentage || width] - distance to target width with max word spacing
+    optionally { wordSpaceEm, wordSpacePx, actualWidth} if opts.computeWordSpace is true 
   }
 
   @param newWord: str, the word  to change to
-  @param wordId: int, the id of the word to be changed
-  @param isShadow: boolean, true if using shadow text
-  @param fields: arr, return field, ['max', 'min', 'opt'] // specify needed only for performance
+  @param wordIdx: int, the id of the word to be changed
+  @param opts: options object, {
+    isShadow: boolean, true if using shadow text
+    usePercent: boolean, return values in percent
+    computeWordSpace: boolean, also compute optimal word-spacing for line
+  }
 
   @optimise if we measure new width with 'minWordSpace', we should be able to compute width 
   with 'maxWordSpace', based on the numSpaces, without another measure call (possible futures)
@@ -90,7 +94,7 @@ const computeWidthData = function (newWord, wordIdx, opts = {}) {
 
   let result = {};
   let isShadow = opts.shadow;
-  let usePercent = opts.usePercent;  
+  let usePercent = opts.usePercent;
   let wordEle = isShadow ? undefined : document.getElementById("w" + wordIdx);
   let lineIdx = wordLineMap.word2Line[wordIdx];
   let originalWord = isShadow ? history[shadowTextName()].map(last)[wordIdx] : wordEle.textContent;
@@ -112,7 +116,7 @@ const computeWidthData = function (newWord, wordIdx, opts = {}) {
   result.minWidth = usePercent ? ((widthMinWs - targetWidth) / targetWidth) * 100 : widthMinWs;
 
 
-  if (opts.computeWordSpace) {   // compute optimal word-space and actual width using it
+  if (opts.computeWordSpace) {   // compute optimal wordspace and actual width using it
 
     if (isShadow) throw Error('opts.computeWordSpace not available for shadow text');
 
@@ -120,7 +124,7 @@ const computeWidthData = function (newWord, wordIdx, opts = {}) {
     let step = 0.01 * initialMetrics.fontSize;
     let currentWidth = measureWidthCtx(newText, style.font, currentWsPx + "px");
     let direction = currentWidth >= targetWidth ? -1 : 1;
-    
+
     let bound1 = currentWsPx, bound2, w1;
     while ((direction > 0 ? currentWidth < targetWidth : currentWidth > targetWidth)) {
       bound1 += step * direction;
@@ -142,8 +146,9 @@ const computeWidthData = function (newWord, wordIdx, opts = {}) {
 }
 
 const getShadowText = function (lineIdx) {
-  let r = []
-  wordLineMap.line2Word[lineIdx].forEach(wi => r.push(history[shadowTextName()].map(last)[wi]));
+  let r = []; // use reduce
+  wordLineMap.line2Word[lineIdx].forEach
+    (wi => r.push(history[shadowTextName()].map(last)[wi]));
   return r.join(" ");
 }
 

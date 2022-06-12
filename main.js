@@ -32,7 +32,7 @@ let adjustInitialWordspacing = true;
 let visBandColors = ['#9CC0E5', '#F59797', '#E7EBC5', '#C3ACB8', '#F3F3F3', '#777777'];
 
 // words considered un-replaceable
-let stops = ["several", "another", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
+let stops = ["several", "another", "like", "most", "here", "also", "over", "have", "this", "that", "just", "then", "under", "some", "their", "when", "these", "within", "after", "with", "there", "where", "while", "from", "whenever", "every", "usually", "other", "whereas"];
 
 // ignored when found as a similar
 let ignores = ["leding", "expecteds", "paling", "sorrel", "toing", "reporteds", "jerkies", "trite", "nary", "outta", "copras", "accomplis", "scad", "silly", "saris", "coca", "durn", "geed", "goted", "denture", "wales", "terry"];
@@ -86,8 +86,8 @@ let similarOverrides = {
   "venal": ["corrupt", "mercenary", "sordid", "renal", "penal", "vernal", "venial", "filial", "viral", "vital"],
   "violent": ["brutal", "subtle", "tired", "ferocious", "virulent", "venal", "torturous", "sharp", "oblique", "quiet", "silent", "violet"],
   "will": ["would", "must", "since", "again", "finally", "ultimately"],
-  "walk": ['stalk', 'talk', "redefinition", "exhibition", "omission", "exposition", "admission", "proposition", "commission", "juxtaposition", "extradition"],
-  "assault": ["exposition", "admission", "proposition", "commission", "juxtaposition", "extradition", "attack"]
+  "walk": ['stalk', 'talk', "exhibition", "omission", "exposition", "admission", "proposition", "commission"],
+  "assault": ["exposition", "admission", "proposition", "commission", "extradition", "attack"]
 };
 
 let sources = {
@@ -120,11 +120,12 @@ let displayBounds = domDisplay.getBoundingClientRect();
 
 let wordLineMap = { word2Line: [], line2Word: [] };
 let reader, worker, spans, initialMetrics, scaleRatio;
+let wiggleScale = 0.01, minAllowScale = 0.997, maxAllowScale = 1.003;
 let fontFamily = window.getComputedStyle(domDisplay).fontFamily;
 let cpadding = window.getComputedStyle(domDisplay).padding;
 let padfloat = parseFloat(cpadding.replace('px', ''));
 let padding = (padfloat && padfloat !== NaN) ? padfloat : 50;
-let radius = displayBounds.width / 2, dbug = 1;
+let radius = displayBounds.width / 2, dbug = false;
 
 let measureCtx = measureCanvas.getContext('2d');
 measureCtx.setTransform(1, 0, 0, 1, 0, 0); // scale = 1
@@ -135,6 +136,7 @@ let safariWidthScaleRatio = 1;
 if (dbug) {
   logging = true;
   readDelay = 1;
+  initialDelay = 1;
   updateDelay = 100;
   highlightWs = true;
   domStats.style.display = 'block';
@@ -145,74 +147,65 @@ ramble(); // go
 
 /////////////////////////////////////////////////////////
 
-// look at each similar, ignore those that, with min or max word-spacing
-// would result in line more than 5% off the target-width
-function shadowRandom(wordIdx, similars) {
-
-  let lineIdx = wordLineMap.word2Line[wordIdx];
-  let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let options = similars.filter(sim => {
-    let res = computeWidthData(sim, wordIdx, { shadow: true });
-    return (res.maxWidth < targetWidth * .95 || res.minWidth > targetWidth * 1.05);
-  });
-  if (!options.length) options = similars;
-  return RiTa.random(options);
-}
-
-// look at each similar, ignore those that, with min or max word-spacing
-// would result in line more than 5% off the target-width
+// check each similar, ignore those that, with min/max word-spacing,
+// would result in a line too far from the target width
 function contextualRandom(wordIdx, oldWord, similars, opts) {
 
-  let ldbug = true;
+  let ldbug = false;
   if (opts && opts.isShadow) return shadowRandom(wordIdx, similars);
-  if (ldbug) updateDelay = 10000000; // stop after 1 update
+  //if (ldbug) updateDelay = 99999999; // stop after 1 update
 
-  let wordEle = document.querySelector(`#w${wordIdx}`);
-  let lineEle = wordEle.parentElement.parentElement;
-  let lineIdx = parseInt((lineEle.id).slice(1));
-
-  // find target width and min/max allowable
-  let wiggle = initialMetrics.radius * 0.01;
-  let targetWidth = initialMetrics.lineWidths[lineIdx];
-  let minAllowedWidth = Math.max(targetWidth * .997, targetWidth - wiggle);
-  let maxAllowedWidth = Math.min(targetWidth * 1.003, targetWidth + wiggle);
-
-  if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + ' word=' + oldWord
-    + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minAllowedWidth
-    + ' target=' + targetWidth + ' maxAllowed=' + maxAllowedWidth);
+  let constraints = lineConstraints(wordIdx, oldWord, ldbug);
 
   let wopts = { computeWordSpace: ldbug };
   let options = similars.filter(sim => {
-    let res = computeWidthData(sim, wordIdx, wopts);
-    if (res.maxWidth < minAllowedWidth || res.minWidth > maxAllowedWidth) {
-      if (ldbug) {
-        if (res.wordSpaceEm > -0.05 && res.wordSpaceEm < 0.5) {
-          console.warn('-- *** reject: ' + sim, res);
-        } else {
-          console.log('-- *** reject: ' + sim, res);
-        }
-      }
-      return false;
+
+    let data = computeWidthData(sim, wordIdx, wopts);
+    let msg = ldbug ? `'${sim}' ws=${data.wordSpaceEm.toFixed(2)} `
+      + `${data.minWidth.toFixed(2)}-${data.maxWidth.toFixed(2)} ` : 0;
+
+    if (data.maxWidth < constraints.minWidth || data.minWidth > constraints.maxWidth) {
+      if (ldbug) console.log(`  REJECT ${msg}`);
+      return false; // reject
     }
-    if (ldbug) {
-      if (res.wordSpaceEm <= -0.05 || res.wordSpaceEm >= 0.5) {
-        console.warn("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
-          + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
-      } else {
-        console.log("-- *** ok: " + sim + ": " + res.minWidth.toFixed(2) + '-'
-          + res.maxWidth.toFixed(2) + ' ' + res.wordSpaceEm.toFixed(2) + 'em');
-      }
+
+    if (ldbug) { // log error if violating min/max wordspace here
+      let wsEm = data.wordSpaceEm, wiggle = initialMetrics.radius * wiggleScale;
+      let failed = wsEm < minWordSpace - wiggle || wsEm > maxWordSpace + wiggle;
+      console[(failed ? 'error' : 'log')](`  ALLOW  ${msg}`);
     }
-    return true; // allowed
+
+    return true; // allow
   });
 
-  if (!options.length) {
-    if (ldbug) console.log('-- reverting to random');
-    options = similars;
+  /*if (!options.length) {  // TODO: take best (shortest/longest), but not last
+    if (ldbug) console.error('  NONE *** @' + lineIdx + '.' + wordIdx);
+  }*/
+
+  if (ldbug) {
+    if (!options.length) console.warn('REVERT *** '
+      + `@${wordLineMap.word2Line[wordIdx]}.${wordIdx}`);
+    console.log('  OPTS(' + options.length + ') ['
+      + (options.length ? options : similars) + ']');
   }
-  else {
-    if (ldbug) console.log('-- opts(' + options.length + '): [' + options + ']');
-  }
+
+  return RiTa.random(options.length ? options : similars);
+}
+
+
+// check each similar, ignore those that, with min/max word-spacing,
+// would result in a line too far from the target width (shadow)
+function shadowRandom(wordIdx, similars) {
+
+  let constraints = lineConstraints(wordIdx);
+
+  let wopts = { shadow: true };
+  let options = similars.filter(sim => {
+    let { minWidth, maxWidth } = computeWidthData(sim, wordIdx, wopts);
+    return (maxWidth < constraints.minWidth || minWidth > constraints.maxWidth);
+  });
+
+  if (!options.length) options = similars; // revert to random
 
   return RiTa.random(options);
 }
@@ -361,15 +354,13 @@ function updateState() {
   return true;
 }
 
-let testContextualRandom = false;
-
 /* selects an index to replace in displayed text */
 function replace() {
 
   // don't pick ids on reader's current line (#110)
   let readerLine = reader ? reader.currentLine() : -1;
   let idx = RiTa.random(repids.filter(id => lineIdFromWordId(id) !== readerLine));
-  if (testContextualRandom) idx = 31;
+  //idx = 69; // for testing one word-idx
 
   let dword = last(history[state.domain][idx]);
   let sword = last(history[shadowTextName()][idx]);
@@ -394,7 +385,6 @@ function postReplace(e) {
 
     // pick a random similar to replace in display text
     let dnext = contextualRandom(idx, dword, dsims);
-    if (testContextualRandom) dnext = 'brotherwoods';
 
     history[domain][idx].push(dnext);
 
@@ -417,7 +407,7 @@ function postReplace(e) {
   else {
     delayMs = 1;
     let msg = `[SKIP] replace @${lineIdx}.${idx} [${pos}] `;
-    if (beingRead) msg += `'${dword}' is currently being read`;
+    if (beingRead) msg += `'${dword}' is being read`;
     if (!dsims.length) msg += `None found for '${dword}' `;
     if (!ssims.length) msg += `None found for '${sword}' (shadow)`;
     if (logging) console.log(msg);
@@ -464,7 +454,7 @@ function restore() {
     else {
       delayMs = 1000; // tmp: keep same delay
       if (logging) console.log(`[SKIP] restore @${lineIdx}.${idx} [${pos}]`
-        + ` '${word}' is currently being read (${numMods()} mods)`);
+        + ` '${word}' is being read (${numMods()})`);
     }
   }
   else {
@@ -480,12 +470,6 @@ function restore() {
   if (updateState() && !state.stepMode) {
     state.loopId = setTimeout(ramble, delayMs);
   }
-}
-
-/* total number of replacements made in display text */
-function numMods() {
-  return repids.reduce((total, idx) =>
-    total + history[state.domain][idx].length - 1, 0);
 }
 
 /* stop rambler and reader  */
@@ -506,6 +490,29 @@ function stop() {
   updateInfo();
 
   worker && worker.postMessage({ event: 'getcache', data: { repids } });
+}
+
+function lineConstraints(wordIdx, current, ldbug) {
+
+  let lineIdx = wordLineMap.word2Line[wordIdx];
+
+  // find target width and min/max allowable
+  let wiggle = initialMetrics.radius * wiggleScale;
+  let targetWidth = initialMetrics.lineWidths[lineIdx];
+  let minWidth = Math.max(targetWidth * minAllowScale, targetWidth - wiggle);
+  let maxWidth = Math.min(targetWidth * maxAllowScale, targetWidth + wiggle);
+
+  if (ldbug) console.log("@" + lineIdx + '.' + wordIdx + (current ? ' word=' + current : '')
+    + ' pos=' + sources.pos[wordIdx] + ' minAllowed=' + minWidth.toFixed(2)
+    + ' target=' + targetWidth.toFixed(2) + ' maxAllowed=' + maxWidth.toFixed(2));
+
+  return { minWidth, maxWidth };
+}
+
+/* total number of replacements made in display text */
+function numMods() {
+  return repids.reduce((total, idx) =>
+    total + history[state.domain][idx].length - 1, 0);
 }
 
 function writeCache(args) {
@@ -689,7 +696,7 @@ function beingRead(idx) { // unused
 }
 
 function lineIdFromWordId(idx) {
-  // return wordLineMap.word2Line[idx]; // strange results
+  // return wordLineMap.word2Line[idx]; // strange results?
   let wordEle = document.getElementById("w" + idx);
   let lineEle = wordEle.parentElement.parentElement;
   return parseInt(lineEle.id.slice(1));

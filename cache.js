@@ -1,25 +1,16 @@
 let cache = {
   "time": [
-    "slime",
-    "climb",
     "rhyme",
-    "lime",
-    "tomb",
-    "crime",
-    "prime",
+    "moment",
+    "instant",
+    "second",
+    "minute",
     "tome",
-    "tine",
-    "tide",
-    "team",
-    "term",
-    "clime",
-    "tile",
-    "dime",
-    "grime",
-    "tire",
-    "sublime"
+    "tide"
   ],
   "light": [
+    "wind",
+    "moon",
     "sleight",
     "fright",
     "knight",
@@ -27,12 +18,10 @@ let cache = {
     "kite",
     "right",
     "fight",
-    "liar",
     "might",
     "bite",
     "night",
     "line",
-    "tonight",
     "sight"
   ],
   "faded": [
@@ -113,37 +102,21 @@ let cache = {
   ],
   "comes": [
     "plumbs",
-    "thumbs",
-    "numbs",
     "succumbs",
-    "culls",
     "calms",
-    "bums",
-    "gums",
-    "sums",
     "hums",
-    "copes",
     "homes",
-    "codes",
     "combs"
   ],
   "rest": [
     "bequest",
     "west",
     "nest",
-    "behest",
-    "pest",
     "roost",
     "rust",
     "best",
     "chest",
     "test",
-    "southwest",
-    "wrist",
-    "breast",
-    "guest",
-    "vest",
-    "zest",
     "northwest"
   ],
   "imperceptibly": [
@@ -246,7 +219,6 @@ let cache = {
   "woods": [
     "words",
     "woodlands",
-    "brotherwoods",
     "moods",
     "forest",
     "trees",
@@ -358,24 +330,14 @@ let cache = {
     "insights"
   ],
   "slopes": [
-    "misanthropes",
-    "microscopes",
-    "soaps",
+    "hills",
     "envelopes",
-    "popes",
-    "tightropes",
     "ropes",
     "telescopes",
-    "copes",
     "slips",
     "scopes",
     "hopes",
-    "slops",
-    "heliotropes",
-    "sloops",
-    "sleeps",
-    "kaleidoscopes",
-    "stethoscopes"
+    "sloops"
   ],
   "rushed": [
     "gushed",
@@ -659,39 +621,16 @@ let cache = {
     "oaths",
     "pathos"
   ],
-  "like": [
-    "spike",
-    "strike",
-    "hike",
-    "lick",
-    "lock",
-    "leak",
-    "line",
-    "live",
-    "lack",
-    "light",
-    "lurk",
-    "look"
-  ],
   "scars": [
-    "thoroughfares",
-    "fanfares",
-    "healthcares",
-    "minicars",
     "scads",
     "stars",
     "scares",
-    "medicares",
     "squares",
     "repertoires",
-    "childcares",
     "airfares",
     "scarves",
-    "ashares",
     "scores",
-    "tars",
-    "jars",
-    "bars"
+    "jars"
   ],
   "traces": [
     "vases",
@@ -931,16 +870,16 @@ let cache = {
   ],
   "creatures": [
     "legislatures",
-    "nomenclatures",
-    "musculatures",
     "creators",
     "features",
     "treasures"
   ],
   "cronies": [
     "crannies",
-    "crones",
-    "ironies"
+    "ironies",
+    "neighbors",
+    "munitions",
+    "weapons",
   ],
   "nests": [
     "bequests",
@@ -1162,22 +1101,18 @@ let cache = {
     "nephew",
     "queue",
     "curve",
-    "surfer",
     "cure",
     "crew",
     "curse"
   ],
   "dinner": [
-    "winner",
-    "thinner",
-    "beginner",
-    "sinner",
-    "donor",
-    "dimmer",
-    "digger",
-    "dipper",
-    "diner",
-    "downer"
+    "winning",
+    "beginning",
+    "sinning",
+    "dimming",
+    "digging",
+    "dipping",
+    "dining"
   ],
   "escape": [
     "avoid",
@@ -1282,10 +1217,8 @@ let cache = {
   "beauty": [
     "booty",
     "duty",
-    "beast",
-    "fealty",
     "deputy",
-    "beat"
+    "scrutiny",
   ],
   "stumbled": [
     "fumbled",
@@ -1337,12 +1270,10 @@ let cache = {
     "verses"
   ],
   "danger": [
-    "ranger",
-    "stranger",
-    "exchanger",
-    "manger",
-    "dancer",
-    "hanger"
+    "rangers",
+    "strangers",
+    "power",
+    "conflict"
   ],
   "military": [
     "solitary",
