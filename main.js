@@ -202,7 +202,7 @@ function shadowRandom(wordIdx, similars) {
   let wopts = { shadow: true };
   let options = similars.filter(sim => {
     let { minWidth, maxWidth } = computeWidthData(sim, wordIdx, wopts);
-    return (maxWidth < constraints.minWidth || minWidth > constraints.maxWidth);
+    return !(maxWidth < constraints.minWidth || minWidth > constraints.maxWidth);
   });
 
   if (!options.length) options = similars; // revert to random
