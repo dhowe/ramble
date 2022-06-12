@@ -101,12 +101,11 @@ let cache = {
     "oxidation"
   ],
   "comes": [
-    "plumbs",
+    "returns",
     "succumbs",
-    "calms",
-    "hums",
-    "homes",
-    "combs"
+    "slows",
+    "turns",
+    "settles",
   ],
   "rest": [
     "bequest",
@@ -114,8 +113,6 @@ let cache = {
     "nest",
     "roost",
     "rust",
-    "best",
-    "chest",
     "test",
     "northwest"
   ],
