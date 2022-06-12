@@ -1402,22 +1402,12 @@ let cache = {
     "error"
   ],
   "pain": [
-    "plain",
-    "rein",
-    "drain",
-    "grain",
-    "plane",
-    "butane",
-    "page",
-    "lane",
-    "payer",
+    "suffering",
+    "torture",
     "chain",
-    "gain",
     "reign",
     "pace",
-    "cane",
     "pine",
-    "main",
     "rain"
   ],
   "continue": [
