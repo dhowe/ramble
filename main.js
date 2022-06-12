@@ -359,10 +359,11 @@ function replace() {
 
   // don't pick ids on reader's current line (#110)
   let readerLine = reader ? reader.currentLine() : -1;
-  let idx = RiTa.random(repids.filter(id => {//lineIdFromWordId(id) !== readerLine
-    return lineIdFromWordId(id) === 26;
+  let idx = RiTa.random(repids.filter(id => {
+    return lineIdFromWordId(id) !== readerLine
+    //return lineIdFromWordId(id) === 26; // test one line
   }));
-  //idx = 69; // for testing one word-idx
+  //idx = 69; // test one word
 
   let dword = last(history[state.domain][idx]);
   let sword = last(history[shadowTextName()][idx]);
